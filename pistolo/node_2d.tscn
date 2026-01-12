@@ -1,0 +1,85 @@
+[gd_scene format=3 uid="uid://co6gndlc5g2p3"]
+
+[ext_resource type="Script" uid="uid://d071i40mvkyrc" path="res://camera_3d.gd" id="1_0e48y"]
+[ext_resource type="Script" uid="uid://cwh3sqmrq2gya" path="res://mesh_instance_3d.gd" id="1_wtcfe"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_0e48y"]
+
+[sub_resource type="CurveTexture" id="CurveTexture_epypp"]
+
+[sub_resource type="Animation" id="Animation_epypp"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-34.18641, 11.837156, 12.24629)]
+}
+
+[sub_resource type="Animation" id="Animation_0e48y"]
+resource_name = "ciclo luce"
+length = 16.0
+loop_mode = 2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 3, 5.98, 9.03, 12.01, 15.860001),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(-34.18641, 11.837156, 12.24629), Vector3(8.410374, 11.837156, 46.61904), Vector3(55.006477, 10.359541, 15.994839), Vector3(51.998474, 10.395124, -30.061453), Vector3(-36.78872, 10.395124, -25.358082), Vector3(-40.32994, 10.395124, 26.117079)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_epypp"]
+_data = {
+&"RESET": SubResource("Animation_epypp"),
+&"ciclo luce": SubResource("Animation_0e48y")
+}
+
+[node name="root" type="Node3D" unique_id=60725401]
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=191005879]
+transform = Transform3D(1, 0, 0, 0, 0.9583725, 0.28552115, 0, -0.28552115, 0.9583725, 0.085814, 1.4836447, 3.305946)
+fov = 86.03362
+script = ExtResource("1_0e48y")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1653222808]
+script = ExtResource("1_wtcfe")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1825856665]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.9321566, 3.701814, 4.5744734)
+light_color = Color(0.16159602, 1.0039686, 1.0000322, 1)
+light_energy = 2.079
+light_size = 0.478
+shadow_enabled = true
+shadow_reverse_cull_face = true
+omni_range = 42.838
+
+[node name="palo" type="MeshInstance3D" parent="." unique_id=466191686]
+transform = Transform3D(0.9659484, 0.18478349, 0.2560818, 0, 4.9487314, -0.14283623, -0.25873476, 0.68986213, 0.9560439, 0, 2.9587855, 0)
+mesh = SubResource("CylinderMesh_0e48y")
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="." unique_id=1194018594]
+transform = Transform3D(1, 0, 0, 0, 0.9999787, -0.006527485, 0, 0.006527485, 0.9999787, -34.18641, 11.837156, 12.24629)
+light_color = Color(0.95304364, 0.68386143, 0.8735729, 1)
+light_energy = 8.912
+light_indirect_energy = 7.418
+light_projector = SubResource("CurveTexture_epypp")
+light_size = 0.723
+shadow_enabled = true
+shadow_reverse_cull_face = true
+omni_range = 59.566895
+omni_attenuation = 0.011
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="OmniLight3D2" unique_id=1430207527]
+libraries/ = SubResource("AnimationLibrary_epypp")
+autoplay = &"ciclo luce"
