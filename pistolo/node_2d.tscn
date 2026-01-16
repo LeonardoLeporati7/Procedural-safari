@@ -2,6 +2,30 @@
 
 [ext_resource type="Script" uid="uid://d071i40mvkyrc" path="res://camera_3d.gd" id="1_0e48y"]
 [ext_resource type="Script" uid="uid://cwh3sqmrq2gya" path="res://mesh_instance_3d.gd" id="1_wtcfe"]
+[ext_resource type="Texture2D" uid="uid://b0pxkb2arufga" path="res://20250501073645!Shrek.png" id="2_epypp"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_0hol4"]
+sky_top_color = Color(0, 0.5080529, 0.5613696, 1)
+sky_horizon_color = Color(0.5306866, 0.64994985, 0.654279, 1)
+ground_horizon_color = Color(0.5306866, 0.64994985, 0.654279, 1)
+energy_multiplier = 1.35
+
+[sub_resource type="Sky" id="Sky_q6r6c"]
+sky_material = SubResource("ProceduralSkyMaterial_0hol4")
+
+[sub_resource type="Environment" id="Environment_kdubu"]
+background_mode = 2
+sky = SubResource("Sky_q6r6c")
+tonemap_mode = 2
+ssao_enabled = true
+sdfgi_enabled = true
+glow_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d21ai"]
+albedo_texture = ExtResource("2_epypp")
+metallic_specular = 0.2
+roughness = 0.8
+uv1_scale = Vector3(4, 4, 4)
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_0e48y"]
 
@@ -47,16 +71,26 @@ _data = {
 
 [node name="root" type="Node3D" unique_id=60725401]
 
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=466972999]
+environment = SubResource("Environment_kdubu")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1980264218]
+transform = Transform3D(-0.8660254, -0.25000003, 0.43301275, 0, 0.8660254, 0.5, -0.50000006, 0.4330127, -0.75, 0, 0, 0)
+light_energy = 0.55
+shadow_enabled = true
+
 [node name="Camera3D" type="Camera3D" parent="." unique_id=191005879]
 transform = Transform3D(1, 0, 0, 0, 0.9583725, 0.28552115, 0, -0.28552115, 0.9583725, 0.085814, 1.4836447, 3.305946)
 fov = 86.03362
 script = ExtResource("1_0e48y")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1653222808]
+material_override = SubResource("StandardMaterial3D_d21ai")
 script = ExtResource("1_wtcfe")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1825856665]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.9321566, 3.701814, 4.5744734)
+visible = false
 light_color = Color(0.16159602, 1.0039686, 1.0000322, 1)
 light_energy = 2.079
 light_size = 0.478
@@ -70,6 +104,7 @@ mesh = SubResource("CylinderMesh_0e48y")
 
 [node name="OmniLight3D2" type="OmniLight3D" parent="." unique_id=1194018594]
 transform = Transform3D(1, 0, 0, 0, 0.9999787, -0.006527485, 0, 0.006527485, 0.9999787, -34.18641, 11.837156, 12.24629)
+visible = false
 light_color = Color(0.95304364, 0.68386143, 0.8735729, 1)
 light_energy = 8.912
 light_indirect_energy = 7.418

@@ -1,6 +1,6 @@
 extends Camera3D
 
-var velocity = 0.2
+var velocity = 0.6
 var sensitivity= 0.2
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
