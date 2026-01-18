@@ -78,6 +78,7 @@ environment = SubResource("Environment_kdubu")
 transform = Transform3D(-0.8660254, -0.25000003, 0.43301275, 0, 0.8660254, 0.5, -0.50000006, 0.4330127, -0.75, 0, 0, 0)
 light_energy = 0.55
 shadow_enabled = true
+shadow_blur = 4.67
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=191005879]
 transform = Transform3D(1, 0, 0, 0, 0.9583725, 0.28552115, 0, -0.28552115, 0.9583725, 0.085814, 1.4836447, 3.305946)
