@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://d071i40mvkyrc" path="res://camera_3d.gd" id="1_0e48y"]
 [ext_resource type="Script" uid="uid://cwh3sqmrq2gya" path="res://mesh_instance_3d.gd" id="1_wtcfe"]
-[ext_resource type="Texture2D" uid="uid://b0pxkb2arufga" path="res://20250501073645!Shrek.png" id="2_epypp"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_0hol4"]
 sky_top_color = Color(0, 0.5080529, 0.5613696, 1)
@@ -20,12 +19,6 @@ tonemap_mode = 2
 ssao_enabled = true
 sdfgi_enabled = true
 glow_enabled = true
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d21ai"]
-albedo_texture = ExtResource("2_epypp")
-metallic_specular = 0.2
-roughness = 0.8
-uv1_scale = Vector3(4, 4, 4)
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_0e48y"]
 
@@ -76,6 +69,7 @@ environment = SubResource("Environment_kdubu")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1980264218]
 transform = Transform3D(-0.8660254, -0.25000003, 0.43301275, 0, 0.8660254, 0.5, -0.50000006, 0.4330127, -0.75, 0, 0, 0)
+visible = false
 light_energy = 0.55
 shadow_enabled = true
 shadow_blur = 4.67
@@ -86,7 +80,6 @@ fov = 86.03362
 script = ExtResource("1_0e48y")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1653222808]
-material_override = SubResource("StandardMaterial3D_d21ai")
 script = ExtResource("1_wtcfe")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1825856665]

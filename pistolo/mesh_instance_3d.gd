@@ -1,7 +1,7 @@
 extends MeshInstance3D
 
 @export var size := 70.0          # dimensione isola
-@export var resolution := 32      # più basso = più low poly
+@export var resolution := 64     # più basso = più low poly
 @export var height := 7.0         # altezza massima
 
 @export var noise_scale := 0.1
