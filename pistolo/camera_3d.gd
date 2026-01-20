@@ -49,7 +49,6 @@ func _process(delta: float) -> void:
 	
 	if Input.is_action_pressed("w"):
 		direction -= transform.basis.z
-		print(position)
 	if Input.is_action_pressed("s"):
 		direction += transform.basis.z
 	if Input.is_action_pressed("a"):
@@ -64,7 +63,9 @@ func _process(delta: float) -> void:
 	if Input.is_action_pressed("shi"):
 		direction.y -= 1 * velocity
 	
-
+	if Input.is_action_just_pressed("ui_focus_next"):
+		print(position)
+		
 	if(direction):
 		
 		
