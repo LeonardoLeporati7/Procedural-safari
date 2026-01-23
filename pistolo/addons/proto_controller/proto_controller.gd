@@ -48,6 +48,7 @@ var mouse_captured : bool = false
 var look_rotation : Vector2
 var move_speed : float = 0.0
 var freeflying : bool = false
+var waterCoeff = 1
 
 ## IMPORTANT REFERENCES
 @onready var head: Node3D = $Head
@@ -84,11 +85,11 @@ func _physics_process(delta: float) -> void:
 		motion *= freefly_speed * delta
 		move_and_collide(motion)
 		return
-	
+
 	# Apply gravity to velocity
 	if has_gravity:
 		if not is_on_floor():
-			velocity += get_gravity() * delta
+			velocity += get_gravity()  * delta * waterCoeff
 
 	# Apply jumping
 	if can_jump:

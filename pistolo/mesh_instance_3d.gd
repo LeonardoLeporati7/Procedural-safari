@@ -3,9 +3,9 @@ extends MeshInstance3D
 
 @export var size := 200.0          # dimensione isola
 @export var resolution := 500     # più basso = più low poly
-@export var height := 20    # altezza massima
+@export var height := 6    # altezza massima
 
-@export var noise_scale := 0.04
+@export var noise_scale := 0.03
 
 var noise := FastNoiseLite.new()
 
@@ -29,8 +29,8 @@ func generate_terrain():
 
 	colors.resize(vertices.size())
 	
-	var cosaaa = 0
-	var del=0
+	var del = 0
+
 	
 	for i in vertices.size():
 		var v := vertices[i]
@@ -53,19 +53,24 @@ func generate_terrain():
 		
 		if(height_percent <= -0.01):
 			
-			colors[i]= Color(0.0, 0.221, 0.317, 1.0)
+			colors[i]= Color(0.797, 0.608, 0.323, 1.0)
 		elif (height_percent < 0.25):
-			colors[i]= Color(0.319, 0.54, 0.25, 1.0)
+			colors[i]= Color(randf_range(0.300, 0.325), randf_range(0.5, 0.55), randf_range(0.20, 0.25), 1.0)
 		else:
 			colors[i]= Color(1.0, 1.0, 1.0, 1.0)
 		
-		if(island_mask<0.2):
-				colors[i]= Color(0.797, 0.608, 0.323, 1.0) #deep sea level
-				if(del == 0):
-					del=1
-					print(v.y,", ", dist)
-					
-				vertices[i] = v
+		
+		var beach_start := 0.75
+		var beach_end := 0.9
+
+		if dist > beach_start:
+			var t := inverse_lerp(beach_start, beach_end, dist)
+			t = smoothstep(0.0, 1.0, t)
+			colors[i]= Color(0.797, 0.608, 0.323, 1.0) #deep sea level
+			v.y -= t * 5.0
+			vertices[i] = v
+	
+
 		
 	
 	arrays[ArrayMesh.ARRAY_VERTEX] = vertices
