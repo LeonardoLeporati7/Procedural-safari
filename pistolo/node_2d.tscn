@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://co6gndlc5g2p3"]
 
-[ext_resource type="Script" uid="uid://d071i40mvkyrc" path="res://camera_3d.gd" id="1_0e48y"]
 [ext_resource type="Script" uid="uid://cwh3sqmrq2gya" path="res://mesh_instance_3d.gd" id="1_wtcfe"]
+[ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller.tscn" id="2_0e48y"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_0e48y"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -84,13 +84,13 @@ light_energy = 0.212
 shadow_enabled = true
 shadow_blur = 4.67
 
-[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=1614567349]
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=1987870888]
 
 [node name="Terrain" type="MeshInstance3D" parent="StaticBody3D" unique_id=1653222808]
 material_override = SubResource("StandardMaterial3D_0e48y")
 script = ExtResource("1_wtcfe")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=2135151944]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=1585873293]
 
 [node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1825856665]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.9321566, 3.701814, 4.5744734)
@@ -101,10 +101,6 @@ light_size = 0.478
 shadow_enabled = true
 shadow_reverse_cull_face = true
 omni_range = 42.838
-
-[node name="Camera3D" type="Camera3D" parent="." unique_id=142147548]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9231267, 5.6815753)
-script = ExtResource("1_0e48y")
 
 [node name="palo" type="MeshInstance3D" parent="." unique_id=466191686]
 transform = Transform3D(0.9659484, 0.18478349, 0.2560818, 0, 4.9487314, -0.14283623, -0.25873476, 0.68986213, 0.9560439, 0, 2.9587855, 0)
@@ -132,7 +128,7 @@ visible = false
 mesh = SubResource("PlaneMesh_0e48y")
 
 [node name="RigidBody3D" type="RigidBody3D" parent="." unique_id=1805295802]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.1750965, 2.4710364)
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 5.1750965, 2.4710364)
 physics_material_override = SubResource("PhysicsMaterial_0e48y")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D" unique_id=1043403285]
@@ -140,3 +136,8 @@ shape = SubResource("CapsuleShape3D_epypp")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="RigidBody3D" unique_id=1916094624]
 mesh = SubResource("CapsuleMesh_0hol4")
+
+[node name="ProtoController" parent="." unique_id=1810123114 instance=ExtResource("2_0e48y")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.667825, 3.9208016, 4.5223827)
+can_sprint = true
+can_freefly = true

@@ -1,8 +1,9 @@
 extends MeshInstance3D
 
-@export var size := 60.0          # dimensione isola
+
+@export var size := 200.0          # dimensione isola
 @export var resolution := 500     # più basso = più low poly
-@export var height := 7    # altezza massima
+@export var height := 20    # altezza massima
 
 @export var noise_scale := 0.04
 
@@ -24,11 +25,12 @@ func generate_terrain():
 	var arrays := plane.get_mesh_arrays()
 	var vertices: PackedVector3Array = arrays[ArrayMesh.ARRAY_VERTEX]
 	var colors : PackedColorArray = []
+	var collision_shape = $"../CollisionShape3D"
 
 	colors.resize(vertices.size())
 	
 	var cosaaa = 0
-	
+	var del=0
 	
 	for i in vertices.size():
 		var v := vertices[i]
@@ -59,7 +61,10 @@ func generate_terrain():
 		
 		if(island_mask<0.2):
 				colors[i]= Color(0.797, 0.608, 0.323, 1.0) #deep sea level
-				v.y=-3
+				if(del == 0):
+					del=1
+					print(v.y,", ", dist)
+					
 				vertices[i] = v
 		
 	
@@ -68,5 +73,7 @@ func generate_terrain():
 
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	collision_shape.shape = mesh.create_trimesh_shape()
+	
 	self.mesh = mesh
 	
