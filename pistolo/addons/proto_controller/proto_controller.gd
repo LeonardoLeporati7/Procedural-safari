@@ -58,7 +58,7 @@ var waterCoeff = 1
 @export var input_pad_down : String = "right_pad_down"
 @export var input_pad_left : String = "right_pad_left"
 @export var input_pad_right : String = "right_pad_right"
-
+@export var isController := true 
 
 ## IMPORTANT REFERENCES
 @onready var head: Node3D = $Head
@@ -75,6 +75,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		capture_mouse()
 	if Input.is_key_pressed(KEY_ESCAPE):
 		release_mouse()
+		
+	if Input.is_key_pressed(KEY_1):
+		isController = !isController
+		
 	
 	# Look around
 	if mouse_captured and event is InputEventMouseMotion:
@@ -136,9 +140,14 @@ func _physics_process(delta: float) -> void:
 ## Base of controller rotates around y (left/right). Head rotates around x (up/down).
 ## Modifies look_rotation based on rot_input, then resets basis and rotates by look_rotation.
 func rotate_look(rot_input : Vector2):
-	look_rotation.x -= rot_input.y * (1.0 if rot_input.y != 0 else 0.0) # Protezione da valori nulli
-	look_rotation.x = clamp(look_rotation.x, deg_to_rad(-85), deg_to_rad(85))
-	look_rotation.y -= rot_input.x
+	if isController:
+		look_rotation.x -= rot_input.y * (1.0 if rot_input.y != 0 else 0.0) # Protezione da valori nulli
+		look_rotation.x = clamp(look_rotation.x, deg_to_rad(-85), deg_to_rad(85))
+		look_rotation.y -= rot_input.x
+	else:
+		look_rotation.x -= rot_input.y * look_speed
+		look_rotation.x = clamp(look_rotation.x, deg_to_rad(-85), deg_to_rad(85))
+		look_rotation.y -= rot_input.x * look_speed
 
 	transform.basis = Basis()
 	rotate_y(look_rotation.y)
@@ -151,6 +160,7 @@ func handle_controller_look(delta: float) -> void:
 	
 	if look_dir.length() > 0:
 		# Moltiplichiamo per 100 per allineare la sensibilità del controller a quella del mouse
+		
 		# e usiamo delta per renderlo indipendente dal framerate
 		var rot_input = look_dir * controller_look_speed * look_speed * 100 * delta
 		
