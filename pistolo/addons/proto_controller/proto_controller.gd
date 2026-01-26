@@ -40,7 +40,7 @@ extends CharacterBody3D
 ## Name of Input Action to Jump.
 @export var input_jump : String = "ui_accept"
 ## Name of Input Action to Sprint.
-@export var input_sprint : String = "sprint"
+@export var input_sprint : String = "shi"
 ## Name of Input Action to toggle freefly mode.
 @export var input_freefly : String = "ui_focus_next"
 
@@ -49,6 +49,16 @@ var look_rotation : Vector2
 var move_speed : float = 0.0
 var freeflying : bool = false
 var waterCoeff = 1
+
+
+@export_group("Controller Input")
+## Moltiplicatore velocità rotazione per il controller
+@export var controller_look_speed : float = 15
+@export var input_pad_up : String = "right_pad_up"
+@export var input_pad_down : String = "right_pad_down"
+@export var input_pad_left : String = "right_pad_left"
+@export var input_pad_right : String = "right_pad_right"
+
 
 ## IMPORTANT REFERENCES
 @onready var head: Node3D = $Head
@@ -79,6 +89,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _physics_process(delta: float) -> void:
 	# If freeflying, handle freefly and nothing else
+	
+	handle_controller_look(delta)
 	if can_freefly and freeflying:
 		var input_dir := Input.get_vector(input_left, input_right, input_forward, input_back)
 		var motion := (head.global_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
@@ -124,13 +136,28 @@ func _physics_process(delta: float) -> void:
 ## Base of controller rotates around y (left/right). Head rotates around x (up/down).
 ## Modifies look_rotation based on rot_input, then resets basis and rotates by look_rotation.
 func rotate_look(rot_input : Vector2):
-	look_rotation.x -= rot_input.y * look_speed
+	look_rotation.x -= rot_input.y * (1.0 if rot_input.y != 0 else 0.0) # Protezione da valori nulli
 	look_rotation.x = clamp(look_rotation.x, deg_to_rad(-85), deg_to_rad(85))
-	look_rotation.y -= rot_input.x * look_speed
+	look_rotation.y -= rot_input.x
+
 	transform.basis = Basis()
 	rotate_y(look_rotation.y)
 	head.transform.basis = Basis()
 	head.rotate_x(look_rotation.x)
+
+func handle_controller_look(delta: float) -> void:
+	# Otteniamo il vettore della levetta destra
+	var look_dir := Input.get_vector("input_pad_left", "input_pad_right", "input_pad_up", "input_pad_down")
+	
+	if look_dir.length() > 0:
+		# Moltiplichiamo per 100 per allineare la sensibilità del controller a quella del mouse
+		# e usiamo delta per renderlo indipendente dal framerate
+		var rot_input = look_dir * controller_look_speed * look_speed * 100 * delta
+		
+		# Riutilizziamo la tua funzione originale per applicare la rotazione
+		# NOTA: passiamo Vector2(x, y). x della levetta ruota l'asse Y (orizzontale), y della levetta ruota l'asse X (verticale)
+		rotate_look(Vector2(rot_input.x, rot_input.y))
+
 
 
 func enable_freefly():

@@ -8,6 +8,8 @@
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_0e48y"]
 sky_top_color = Color(0.24288344, 0.5737913, 0.8987245, 1)
 sky_horizon_color = Color(0.73, 0.613565, 0.48909998, 1)
+sky_curve = 0.10980643
+ground_bottom_color = Color(0.33047572, 0.5843128, 0.71622527, 1)
 sun_angle_max = 9.51
 sun_curve = 1.8
 
@@ -34,8 +36,6 @@ volumetric_fog_emission = Color(0.25415084, 0.45531315, 0.46524435, 1)
 adjustment_enabled = true
 
 [sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_0hol4"]
-exposure_multiplier = 1.289
-auto_exposure_enabled = true
 dof_blur_far_enabled = true
 dof_blur_far_distance = 84.37
 dof_blur_far_transition = 202.42
@@ -98,9 +98,9 @@ _data = {
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_0e48y"]
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_epypp"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_0hol4"]
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_0hol4"]
+[sub_resource type="BoxMesh" id="BoxMesh_q6r6c"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_0e48y"]
 
@@ -196,14 +196,14 @@ visible = false
 mesh = SubResource("PlaneMesh_0e48y")
 
 [node name="RigidBody3D" type="RigidBody3D" parent="." unique_id=1805295802]
-transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 5.1750965, 2.4710364)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.1750965, 2.4710364)
 physics_material_override = SubResource("PhysicsMaterial_0e48y")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D" unique_id=1043403285]
-shape = SubResource("CapsuleShape3D_epypp")
+shape = SubResource("BoxShape3D_0hol4")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="RigidBody3D" unique_id=1916094624]
-mesh = SubResource("CapsuleMesh_0hol4")
+mesh = SubResource("BoxMesh_q6r6c")
 
 [node name="ProtoController" parent="." unique_id=1810123114 instance=ExtResource("2_0e48y")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.667825, 3.9208016, 4.5223827)
