@@ -34,12 +34,13 @@ uniform vec3 uv1_offset;
 uniform vec3 uv2_scale;
 uniform vec3 uv2_offset;
 
-uniform float wave_speed = 0.2;
-uniform float wave_height = 0.9;
-uniform float wave_freq = 0.8;
+uniform float wave_speed = 0;
+uniform float wave_height = 0;
+uniform float wave_freq = 0;
 
 
 void vertex() {
+	
 	vec3 normal = MODEL_NORMAL_MATRIX * NORMAL;
 
 	TANGENT = vec3(0.0, 0.0, -1.0) * abs(normal.x);
@@ -58,16 +59,12 @@ void vertex() {
 	uv1_power_normal /= dot(uv1_power_normal, vec3(1.0));
 	uv1_triplanar_pos *= vec3(1.0, -1.0, 1.0);
 		
-  	float frequency = (VERTEX.x + VERTEX.z) * wave_freq;
-    float phase = TIME * wave_speed;
-    float wave = sin(phase + frequency) * wave_height;
-    
-    // Applica l'offset
-    //VERTEX.y += wave;
+float frequency = length(VERTEX.xz) * wave_freq;
+float phase = TIME * wave_speed;
+float wave = sin(phase + frequency) * wave_height;
 
-    // IMPORTANTE: Se l'onda è alta, devi ricalcolare le normali 
-    // o l'illuminazione sembrerà piatta/sbagliata.
-    NORMAL = normalize(vec3(0.0, 1.0, 0.0)); 
+//VERTEX.y += wave;
+
 	
 }
 

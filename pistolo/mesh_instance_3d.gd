@@ -2,12 +2,13 @@ extends MeshInstance3D
 
 
 @export var size := 400.0          # dimensione isola
-@export var resolution := 500     # più basso = più low poly
-@export var height := 15    # altezza massima
+@export var resolution := 600     # più basso = più low poly
+@export var height := 13    # altezza massima
 
 @export var noise_scale := 0.02
 
 var noise := FastNoiseLite.new()
+
 
 func _ready():
 	noise.seed = randi()
