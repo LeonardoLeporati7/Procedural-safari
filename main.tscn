@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://7ns70huqnvco"]
+
+[ext_resource type="Material" uid="uid://h0omavrnsek5" path="res://materials/floor.tres" id="2_dgnap"]
+[ext_resource type="PackedScene" uid="uid://cj78doqftmcrv" path="res://volpe.tscn" id="3_h2yge"]
+
+[sub_resource type="Environment" id="Environment_0xm2m"]
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_h2yge"]
+
+[sub_resource type="Compositor" id="Compositor_1bvp3"]
+
+[node name="Main" type="Node3D" unique_id=18126565]
+
+[node name="CSGBox3D" type="CSGBox3D" parent="." unique_id=1169985587]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30.204649, -3.4341164, 16.04824)
+use_collision = true
+size = Vector3(251.79309, 0.001, 187.38794)
+material = ExtResource("2_dgnap")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1401448491]
+shadow_enabled = true
+omni_range = 55.615
+omni_attenuation = -0.674
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1652047972]
+environment = SubResource("Environment_0xm2m")
+camera_attributes = SubResource("CameraAttributesPractical_h2yge")
+compositor = SubResource("Compositor_1bvp3")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1962456847]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28758192, 2.368678, 16.407276)
+
+[node name="Node3D" parent="." unique_id=1841285964 instance=ExtResource("3_h2yge")]
+move_speed = 4.0
+
+[node name="FrontRightIKTarget" parent="Node3D" index="2" unique_id=1394073472]
+air_smoothness = 20.0
+
+[node name="BackLeftIKTarget" parent="Node3D" index="3" unique_id=850951835]
+air_smoothness = 20.0
+
+[node name="BackRightIKTarget" parent="Node3D" index="4" unique_id=1334474010]
+air_smoothness = 20.0
+
+[node name="Estendi_FL" parent="Node3D/EstendiTarget" parent_id_path=PackedInt32Array(1841285964, 1489024556) index="0" unique_id=1584811034]
+transform = Transform3D(0.9999568, -0.006508228, -0.006644478, 0.0065309727, 0.9999728, 0.003408813, 0.0066221235, -0.0034520393, 0.9999721, -0.3, 1.087, -2)
+
+[editable path="Node3D"]
+[editable path="Node3D/Fox22"]
