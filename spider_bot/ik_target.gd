@@ -8,7 +8,7 @@ extends Marker3D
 @export var step_target: Node3D 
 @export var step_distance: float = 2.0
 @export var animation_duration: float = 0.2
-@export var air_smoothness: float = 10.0
+@export var air_smoothness: float = 8.0
 
 @export var adjacent_target: Node3D 
 @export var opposite_target: Node3D 
@@ -56,15 +56,15 @@ func _handle_jump_pose(delta):
 		v_vel = movement_controller.vertical_velocity
 	if isFront:#zampe anteriori
 		if(v_vel>0):
-			global_position = global_position.slerp(piega_target.global_position, air_smoothness * delta)
+			global_position = global_position.lerp(piega_target.global_position, air_smoothness * delta)
 		else :
-			global_position = global_position.slerp(estendi_target.global_position, air_smoothness * delta)
+			global_position = global_position.lerp(estendi_target.global_position, air_smoothness * delta)
 	
 	else :#zampe posteriori	
 		if(v_vel>0):
-			global_position = global_position.slerp(estendi_target.global_position, air_smoothness * delta)
+			global_position = global_position.lerp(estendi_target.global_position, air_smoothness * delta)
 		else :
-			global_position = global_position.slerp(piega_target.global_position, air_smoothness * delta)
+			global_position = global_position.lerp(piega_target.global_position, air_smoothness * delta)
 	
 	is_stepping = false 
 

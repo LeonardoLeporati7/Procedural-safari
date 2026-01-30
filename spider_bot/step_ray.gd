@@ -31,6 +31,7 @@ func _physics_process(delta):
 	# 2. AGGIORNAMENTO TARGET
 	var hit_point = get_collision_point()
 	if is_colliding():
+		print("hit point :"+str(hit_point))
 		step_target.global_position = hit_point
 		#print(str(step_target)+"step target globall position"+str(step_target.global_position))
 

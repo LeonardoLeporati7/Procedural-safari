@@ -17,6 +17,12 @@ use_collision = true
 size = Vector3(251.79309, 0.001, 187.38794)
 material = ExtResource("2_dgnap")
 
+[node name="CSGBox3D3" type="CSGBox3D" parent="." unique_id=258412745]
+transform = Transform3D(0.67398876, 0.37612402, -0.63582236, -0.48731112, 0.87322855, 0, 0.5552181, 0.30984324, 0.77183545, -30.204649, -3.4341164, 16.04824)
+use_collision = true
+size = Vector3(251.79309, 0.001, 187.38794)
+material = ExtResource("2_dgnap")
+
 [node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1401448491]
 shadow_enabled = true
 omni_range = 55.615
@@ -31,19 +37,10 @@ compositor = SubResource("Compositor_1bvp3")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28758192, 2.368678, 16.407276)
 
 [node name="Node3D" parent="." unique_id=1841285964 instance=ExtResource("3_h2yge")]
-move_speed = 4.0
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.8797665, -3.4316897, 1.3351574)
 
-[node name="FrontRightIKTarget" parent="Node3D" index="2" unique_id=1394073472]
-air_smoothness = 20.0
-
-[node name="BackLeftIKTarget" parent="Node3D" index="3" unique_id=850951835]
-air_smoothness = 20.0
-
-[node name="BackRightIKTarget" parent="Node3D" index="4" unique_id=1334474010]
-air_smoothness = 20.0
-
-[node name="Estendi_FL" parent="Node3D/EstendiTarget" parent_id_path=PackedInt32Array(1841285964, 1489024556) index="0" unique_id=1584811034]
-transform = Transform3D(0.9999568, -0.006508228, -0.006644478, 0.0065309727, 0.9999728, 0.003408813, 0.0066221235, -0.0034520393, 0.9999721, -0.3, 1.087, -2)
+[node name="HeadIKTarget" parent="Node3D" index="1" unique_id=1666917199]
+head_height_attack = 1.0
 
 [editable path="Node3D"]
 [editable path="Node3D/Fox22"]

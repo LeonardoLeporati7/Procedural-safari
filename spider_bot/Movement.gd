@@ -8,6 +8,9 @@ extends Node3D
 
 @export var jump_force: float = 20.0   
 @export var gravity: float = 20.0     
+
+@export var is_attacking = false
+
 var vertical_velocity: float = 0.0    
 var is_jumping: bool = false          
 signal stop_jumping
@@ -74,8 +77,6 @@ func _process(delta):
 			emit_signal("stop_jumping")
 			
 	else:
-		#print("non salto ")
-		# --- FASE CAMMINATA (A TERRA) ---
 		var plane1 = Plane(rc_bl.step_target.global_position, rc_fl.step_target.global_position, rc_fr.step_target.global_position)
 		var plane2 = Plane(rc_fr.step_target.global_position, rc_br.step_target.global_position, rc_bl.step_target.global_position)
 		var avg_normal = ((plane1.normal + plane2.normal) / 2).normalized()
@@ -83,13 +84,10 @@ func _process(delta):
 		var target_basis = _basis_from_normal(avg_normal)
 		transform.basis = lerp(transform.basis, target_basis, move_speed * delta).orthonormalized()
 		
-		# Incolla al terreno usando target_ground_y calcolato all'inizio
-		# Usiamo un lerp veloce per la posizione Y per evitare scatti
-		position.y = lerp(position.y, target_ground_y, move_speed * delta)
-		
-		# Mantiene la posizione X e Z allineata alla rotazione (opzionale se gestisci movimento altrove)
-		# Ma il movimento orizzontale lo gestiamo in _handle_movement
-	
+		var avg = (fl_leg.position + fr_leg.position + bl_leg.position + br_leg.position) / 4
+		var target_pos = avg + transform.basis.y * ground_offset
+		var distance = transform.basis.y.dot(target_pos - position)
+		position = lerp(position, position + transform.basis.y * distance, move_speed * delta)
 	_handle_movement(delta)
 
 func _handle_movement(delta):
