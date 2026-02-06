@@ -9,6 +9,8 @@
 
 [sub_resource type="Compositor" id="Compositor_1bvp3"]
 
+[sub_resource type="TorusMesh" id="TorusMesh_0xm2m"]
+
 [node name="Main" type="Node3D" unique_id=18126565]
 
 [node name="CSGBox3D" type="CSGBox3D" parent="." unique_id=1169985587]
@@ -37,10 +39,18 @@ compositor = SubResource("Compositor_1bvp3")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28758192, 2.368678, 16.407276)
 
 [node name="Node3D" parent="." unique_id=1841285964 instance=ExtResource("3_h2yge")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.8797665, -3.4316897, 1.3351574)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5056973, 0.85894346, 1.6043377)
+move_speed = 10.0
+is_attacking = false
+ground_offset_attack = -0.5
 
-[node name="HeadIKTarget" parent="Node3D" index="1" unique_id=1666917199]
+[node name="HeadIKTarget" parent="Node3D" index="1" unique_id=679983339]
 head_height_attack = 1.0
+
+[node name="CSGMesh3D" type="CSGMesh3D" parent="." unique_id=1607066250]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -4.383112, 0, 1.7709627)
+use_collision = true
+mesh = SubResource("TorusMesh_0xm2m")
 
 [editable path="Node3D"]
 [editable path="Node3D/Fox22"]

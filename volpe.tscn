@@ -4,17 +4,17 @@
 [ext_resource type="Script" uid="uid://cvppf16by64p3" path="res://spider_bot/ik_target.gd" id="2_wc5p8"]
 [ext_resource type="Script" uid="uid://bbo16dywndl6r" path="res://spider_bot/StepTargetContainer.gd" id="3_jsk3o"]
 [ext_resource type="Script" uid="uid://1g3w36rtmt44" path="res://spider_bot/step_ray.gd" id="4_4arys"]
-[ext_resource type="Script" uid="uid://rutayrd4h8p4" path="res://head_ik_target.gd" id="4_ffahf"]
 [ext_resource type="PackedScene" uid="uid://2r76n8goin5r" path="res://Fox22.fbx" id="5_6iypd"]
-[ext_resource type="Script" uid="uid://bn0asqbr7ues7" path="res://coda_ik_target.gd" id="5_hthwp"]
+[ext_resource type="Script" uid="uid://bn0asqbr7ues7" path="res://spider_bot/coda_ik_target.gd" id="5_ffahf"]
 [ext_resource type="Script" uid="uid://c7554dwiw4quj" path="res://spider_bot/start_ik.gd" id="6_tereu"]
-
-[sub_resource type="SphereMesh" id="SphereMesh_i5arm"]
+[ext_resource type="Script" uid="uid://rutayrd4h8p4" path="res://spider_bot/head_ik_target.gd" id="8_mq81u"]
 
 [node name="Node3D" type="Node3D" unique_id=1841285964]
 script = ExtResource("1_i5arm")
 jump_force = 15.0
 gravity = 10.0
+is_attacking = true
+ground_offset_attack = 0.5
 
 [node name="Fox22" parent="." unique_id=468764437 instance=ExtResource("5_6iypd")]
 
@@ -140,7 +140,7 @@ transform = Transform3D(0.030688407, 0, 0, 0, -3.658344e-09, -0.03068841, 0, 0.0
 root_bone = &"shin.L"
 tip_bone = &"foot.L.002_end"
 use_magnet = true
-magnet = Vector3(0, 5, 0)
+magnet = Vector3(0, 1, 1)
 target_node = NodePath("../../../../BackLeftIKTarget")
 script = ExtResource("6_tereu")
 
@@ -150,7 +150,7 @@ transform = Transform3D(0.030688412, 0, 0, 0, -3.6583447e-09, -0.030688414, 0, 0
 root_bone = &"shin.R"
 tip_bone = &"foot.R.002_end"
 use_magnet = true
-magnet = Vector3(0, 5, 0)
+magnet = Vector3(0, 1, 1)
 target_node = NodePath("../../../../BackRightIKTarget")
 script = ExtResource("6_tereu")
 
@@ -161,6 +161,7 @@ target_node = NodePath("../../../../CodaIKTarget")
 script = ExtResource("6_tereu")
 
 [node name="HeadIK" type="SkeletonIK3D" parent="Fox22/metarig_001/Skeleton3D" index="6" unique_id=1299890996]
+transform = Transform3D(0.997211, 0.055670135, -0.049710758, -0.04404327, 0.97666043, 0.2102244, 0.06025376, -0.20744868, 0.9763885, 3.3883119e-09, -0.02243977, 0.020414313)
 root_bone = &"spine.010"
 tip_bone = &"spine.011_end"
 target_node = NodePath("../../../../HeadIKTarget")
@@ -169,10 +170,20 @@ script = ExtResource("6_tereu")
 [node name="Tail" type="Marker3D" parent="Fox22" unique_id=463230797]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2432075, 1.2638522)
 
-[node name="HeadIKTarget" type="Marker3D" parent="." unique_id=1666917199 node_paths=PackedStringArray("movement_controller")]
-transform = Transform3D(-100, -1.509958e-05, 1.4210855e-12, 0, 5.9604645e-06, 100, -1.509958e-05, 100, -1.1920929e-05, 0.08663976, 2.2113805, -2.6061578)
-script = ExtResource("4_ffahf")
+[node name="HeadIKTarget" type="Marker3D" parent="." unique_id=679983339 node_paths=PackedStringArray("movement_controller")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9919841, -2.254187)
+script = ExtResource("8_mq81u")
 movement_controller = NodePath("..")
+head_height_normal = 2.0
+shake_width = 3.0
+
+[node name="CodaIKTarget" type="Marker3D" parent="." unique_id=497913192 node_paths=PackedStringArray("root_target", "movement_controller")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.40790462, 1.0830817, 3.6733263)
+top_level = true
+script = ExtResource("5_ffahf")
+root_target = NodePath("../Fox22/Tail")
+movement_controller = NodePath("..")
+wag_amount = 3.0
 
 [node name="FrontLeftIKTarget" type="Marker3D" parent="." unique_id=1424950250 node_paths=PackedStringArray("movement_controller", "step_target", "adjacent_target", "opposite_target", "piega_target", "estendi_target", "rayCast_target")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.55, -0.375)
@@ -188,21 +199,13 @@ estendi_target = NodePath("../EstendiTarget/Estendi_FL")
 rayCast_target = NodePath("../StepTargetContainer/FrontLeftRay")
 isFront = true
 
-[node name="CodaIKTarget" type="Marker3D" parent="." unique_id=497913192 node_paths=PackedStringArray("root_target", "movement_controller")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.40790462, 1.0830817, 3.6733263)
-top_level = true
-script = ExtResource("5_hthwp")
-root_target = NodePath("../Fox22/Tail")
-movement_controller = NodePath("..")
-tail_length = 4.0
-wag_amount = 2.0
-
 [node name="FrontRightIKTarget" type="Marker3D" parent="." unique_id=1394073472 node_paths=PackedStringArray("movement_controller", "step_target", "adjacent_target", "opposite_target", "piega_target", "estendi_target", "rayCast_target")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0.55, -0.375)
 top_level = true
 script = ExtResource("2_wc5p8")
 movement_controller = NodePath("..")
 step_target = NodePath("../StepTargetContainer/FrontRightRay/FrontRightStepTarget")
+air_smoothness = 13.0
 adjacent_target = NodePath("../FrontLeftIKTarget")
 opposite_target = NodePath("../BackLeftIKTarget")
 piega_target = NodePath("../PiegaTarget/Piega_FR")
@@ -223,7 +226,7 @@ estendi_target = NodePath("../EstendiTarget/Estendi_BL")
 rayCast_target = NodePath("../StepTargetContainer/BackLeftRay")
 
 [node name="BackRightIKTarget" type="Marker3D" parent="." unique_id=1334474010 node_paths=PackedStringArray("movement_controller", "step_target", "adjacent_target", "opposite_target", "piega_target", "estendi_target", "rayCast_target")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0.899, 1.038)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.32248622, 0.6162119, 0.86525095)
 top_level = true
 script = ExtResource("2_wc5p8")
 movement_controller = NodePath("..")
@@ -248,11 +251,6 @@ IK_target = NodePath("../../FrontLeftIKTarget")
 [node name="FrontLeftStepTarget" type="Marker3D" parent="StepTargetContainer/FrontLeftRay" unique_id=571486528]
 transform = Transform3D(1.0000002, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000002, 0, 0, 0)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="StepTargetContainer/FrontLeftRay/FrontLeftStepTarget" unique_id=802548099]
-transform = Transform3D(0.3999999, 0, 0, 0, 0.39999995, 0, 0, 0, 0.39999986, 0, 0, 0)
-mesh = SubResource("SphereMesh_i5arm")
-skeleton = NodePath("../..")
-
 [node name="FrontRightRay" type="RayCast3D" parent="StepTargetContainer" unique_id=780044270 node_paths=PackedStringArray("step_target", "IK_target")]
 transform = Transform3D(1.0000004, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000002, 0.33654526, 1.8166628, -0.7572212)
 target_position = Vector3(0, -100, 0)
@@ -264,11 +262,6 @@ IK_target = NodePath("../../FrontRightIKTarget")
 [node name="FrontRightStepTarget" type="Marker3D" parent="StepTargetContainer/FrontRightRay" unique_id=2079921180]
 transform = Transform3D(1.0000002, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000002, 0, 0, 0)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="StepTargetContainer/FrontRightRay/FrontRightStepTarget" unique_id=1467360088]
-transform = Transform3D(0.39847776, -0.034862284, 1.5954745e-09, 0.034729607, 0.3969615, -0.034862284, 0.0030384443, 0.034729607, 0.39847776, 0, 0, 0)
-mesh = SubResource("SphereMesh_i5arm")
-skeleton = NodePath("../..")
-
 [node name="BackLeftRay" type="RayCast3D" parent="StepTargetContainer" unique_id=692870131 node_paths=PackedStringArray("step_target", "IK_target")]
 transform = Transform3D(1.0000004, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000002, -0.31386745, 2.1056857, 1.1525034)
 target_position = Vector3(0, -100, 0)
@@ -279,11 +272,6 @@ IK_target = NodePath("../../BackLeftIKTarget")
 [node name="BackLeftStepTarget" type="Marker3D" parent="StepTargetContainer/BackLeftRay" unique_id=1726699249]
 transform = Transform3D(1.0000002, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000002, 0, 0, 0)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="StepTargetContainer/BackLeftRay/BackLeftStepTarget" unique_id=1241923582]
-transform = Transform3D(0.39847776, 0.034862284, 1.5954745e-09, -0.034729607, 0.3969615, 0.034862284, 0.0030384443, -0.034729607, 0.39847776, 0, 0, 0)
-mesh = SubResource("SphereMesh_i5arm")
-skeleton = NodePath("../..")
-
 [node name="BackRightRay" type="RayCast3D" parent="StepTargetContainer" unique_id=874278073 node_paths=PackedStringArray("step_target", "IK_target")]
 transform = Transform3D(1.0000004, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000002, 0.34958458, 1.799068, 1.182913)
 target_position = Vector3(0, -100, 0)
@@ -293,11 +281,6 @@ IK_target = NodePath("../../BackRightIKTarget")
 
 [node name="BackRightStepTarget" type="Marker3D" parent="StepTargetContainer/BackRightRay" unique_id=649050045]
 transform = Transform3D(1.0000002, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000002, 0, 0, 0)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="StepTargetContainer/BackRightRay/BackRightStepTarget" unique_id=801472453]
-transform = Transform3D(0.39847773, -0.034862284, -1.4901141e-09, 0.0347296, 0.39696148, 0.03486228, -0.0030384443, -0.034729604, 0.39847773, 0, 0, 0)
-mesh = SubResource("SphereMesh_i5arm")
-skeleton = NodePath("../..")
 
 [node name="EstendiTarget" type="Node3D" parent="." unique_id=1489024556]
 
@@ -322,9 +305,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.55, -0.375)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35069293, 0.55, -0.375)
 
 [node name="Piega_BL" type="Marker3D" parent="PiegaTarget" unique_id=316672730]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.8989575, 1.0377011)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.5, 0.5)
 
 [node name="Piega_BR" type="Marker3D" parent="PiegaTarget" unique_id=1332334795]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0.899, 1.038)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0.5, 0.5)
 
 [editable path="Fox22"]

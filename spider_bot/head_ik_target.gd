@@ -21,6 +21,7 @@ func _process(delta):
 	var target_pos = position
 	
 	if movement_controller.is_attacking:
+		print("attacking")
 		# --- FASE ATTACCO (Scuotimento) ---
 		
 		# 1. Abbassa la testa (senza lerp o con lerp veloce per l'entrata)
@@ -38,6 +39,6 @@ func _process(delta):
 		# Riporta la testa al centro e in alto (dolcemente)
 		target_pos.y = lerp(target_pos.y, head_height_normal, 5.0 * delta)
 		target_pos.x = lerp(target_pos.x, 0.0, 5.0 * delta)
-	
+		target_pos.z=position.z
 	# Applica la posizione finale
 	position = target_pos

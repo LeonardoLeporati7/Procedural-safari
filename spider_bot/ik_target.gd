@@ -9,6 +9,8 @@ extends Marker3D
 @export var step_distance: float = 2.0
 @export var animation_duration: float = 0.2
 @export var air_smoothness: float = 8.0
+@export var prediction_amount: float = 0
+
 
 @export var adjacent_target: Node3D 
 @export var opposite_target: Node3D 
@@ -20,28 +22,30 @@ extends Marker3D
 var is_stepping := false
 
 func _process(delta):
-	# Sicurezza
-	if not movement_controller: return
+	prediction_amount= 0
+	if not movement_controller: return #se non è stato assegnato nessun nodo controller
 
+	
+		
+		
 	# --- 1. GESTIONE SALTO ---
 	if "is_jumping" in movement_controller and movement_controller.is_jumping:
 		_handle_jump_pose(delta)
 		return 
 
 	# --- 2. GESTIONE CAMMINATA ---
-	step_distance = 3.0 
-	animation_duration = 0.2 
 	
-	if movement_controller.dir != 0: 
-		# Calcolo camminata dinamica
-		animation_duration = clamp(0.25 / (movement_controller.move_speed / 2.0), 0.1, 0.3)
-		step_distance = 3.0 + (movement_controller.move_speed * 0.1)	
-	
-		if movement_controller.move_speed > 5: # CORSA
-			if !is_stepping && !opposite_target.is_stepping && abs(global_position.distance_to(step_target.global_position)) > step_distance:
+	if movement_controller.dir != 0: # Calcolo camminata dinamica
+		animation_duration = clamp(0.25 / (movement_controller.move_speed / 6), 0.1, 0.3) #limita il val min del anim duration
+		step_distance = 3.0 + (movement_controller.move_speed * 0.1)	#applica il moltiplicatore al step distance 
+	 # CORSA
+		if movement_controller.move_speed > 5:
+			prediction_amount+=2#aumenta la prediction amount per aggiustare il ritmo dei passi
+			if !is_stepping && !opposite_target.is_stepping && abs(global_position.distance_to(step_target.global_position)) > step_distance-prediction_amount:
 				step()
-		else: # CAMMINATA
-			if !is_stepping && !adjacent_target.is_stepping && abs(global_position.distance_to(step_target.global_position)) > step_distance:
+		 # CAMMINATA		
+		else:
+			if !is_stepping && !adjacent_target.is_stepping && abs(global_position.distance_to(step_target.global_position)) > step_distance-prediction_amount:
 				step()
 	else:
 		# IDLE
@@ -64,7 +68,7 @@ func _handle_jump_pose(delta):
 		if(v_vel>0):
 			global_position = global_position.lerp(estendi_target.global_position, air_smoothness * delta)
 		else :
-			global_position = global_position.lerp(piega_target.global_position, air_smoothness * delta)
+			global_position = global_position.lerp(piega_target.global_position, air_smoothness*2 * delta)
 	
 	is_stepping = false 
 
