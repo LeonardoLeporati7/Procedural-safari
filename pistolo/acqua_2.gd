@@ -1,6 +1,6 @@
 extends MeshInstance3D
 
-@onready var terr := $"../StaticBody3D/Terrain"
+@onready var terr := $"../../StaticBody3D/Terrain"
 # Called when the node enters the scene tree for the first time.
 
 

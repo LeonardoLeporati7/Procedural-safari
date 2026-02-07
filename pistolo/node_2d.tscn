@@ -2,7 +2,9 @@
 
 [ext_resource type="Script" uid="uid://cwh3sqmrq2gya" path="res://mesh_instance_3d.gd" id="1_wtcfe"]
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller.tscn" id="2_0e48y"]
+[ext_resource type="Script" uid="uid://d3ldklfxmoi4o" path="res://rigid_body_3d.gd" id="2_kdubu"]
 [ext_resource type="Shader" uid="uid://bd3ggakc766ys" path="res://node_2d.gdshader" id="3_epypp"]
+[ext_resource type="Script" uid="uid://c5k2boh7464s4" path="res://area_3d.gd" id="3_q6r6c"]
 [ext_resource type="Script" uid="uid://cmnjkjtpqt4ei" path="res://acqua_2.gd" id="4_0hol4"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_0e48y"]
@@ -34,11 +36,11 @@ glow_bloom = 0.3
 fog_light_color = Color(0.288, 0.42293325, 0.64, 1)
 volumetric_fog_emission = Color(0.25415084, 0.45531315, 0.46524435, 1)
 adjustment_enabled = true
+adjustment_contrast = 1.25
 
 [sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_0hol4"]
-dof_blur_far_enabled = true
 dof_blur_far_distance = 84.37
-dof_blur_far_transition = 202.42
+dof_blur_far_transition = 365.55
 dof_blur_amount = 0.15
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0e48y"]
@@ -99,9 +101,12 @@ _data = {
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_0e48y"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_0hol4"]
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_0hol4"]
 
-[sub_resource type="BoxMesh" id="BoxMesh_q6r6c"]
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_q6r6c"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_q6r6c"]
+size = Vector3(168.06567, 0.001, 203.61978)
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_0e48y"]
 
@@ -199,20 +204,31 @@ mesh = SubResource("PlaneMesh_0e48y")
 [node name="RigidBody3D" type="RigidBody3D" parent="." unique_id=1805295802]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.1750965, 2.4710364)
 physics_material_override = SubResource("PhysicsMaterial_0e48y")
+script = ExtResource("2_kdubu")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D" unique_id=1043403285]
-shape = SubResource("BoxShape3D_0hol4")
+shape = SubResource("CapsuleShape3D_0hol4")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="RigidBody3D" unique_id=1916094624]
-mesh = SubResource("BoxMesh_q6r6c")
+mesh = SubResource("CapsuleMesh_q6r6c")
 
 [node name="ProtoController" parent="." unique_id=1810123114 instance=ExtResource("2_0e48y")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.667825, 3.9208016, 4.5223827)
 can_sprint = true
 can_freefly = true
 
-[node name="acqua2" type="MeshInstance3D" parent="." unique_id=129786194]
+[node name="Area3D" type="Area3D" parent="." unique_id=864688726]
+script = ExtResource("3_q6r6c")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" unique_id=340562197]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.13305664, -1.0275495, -2.9517288)
+shape = SubResource("BoxShape3D_q6r6c")
+
+[node name="acqua2" type="MeshInstance3D" parent="Area3D" unique_id=129786194]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5229707, -1.3775101, -0.06988382)
 material_override = SubResource("ShaderMaterial_epypp")
 mesh = SubResource("PlaneMesh_epypp")
 script = ExtResource("4_0hol4")
+
+[connection signal="body_entered" from="Area3D" to="Area3D" method="_on_body_entered"]
+[connection signal="body_exited" from="Area3D" to="Area3D" method="_on_body_exited"]
