@@ -3,7 +3,7 @@
 # Intended for rapid prototyping of first-person games.
 # Happy prototyping!
 
-extends waterable
+extends CharacterBody3D
 
 ## Can we move around?
 @export var can_move : bool = true

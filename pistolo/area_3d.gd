@@ -12,11 +12,11 @@ func _process(delta):
 
 
 func _on_body_entered(body):
-	if body is waterable:
-		body.inWater()
+	if GeneralSingleton.hasComponent(body, waterableComponent):
+		body.get_node("waterableComponent").inWater()
 		
 
 
 func _on_body_exited(body):
-	if body is waterable:
-		body.outWater()
+	if GeneralSingleton.hasComponent(body, waterableComponent):
+		body.get_node("waterableComponent").outWater()
