@@ -1,19 +1,30 @@
-extends PhysicsBody3D 
+extends CharacterBody3D 
 
 class_name waterable
 
-signal enter_water(event)
-signal exit_water(event)
+var is_submerged
+
+var current_gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
+
 
 func ready():
-	enter_water.connect(inWater)
-	exit_water.connect(outWater)
-	
+	pass
 	
 	
 func inWater():
-	print(self.name, " è in acqua")
-	pass
-	
+	print(self.name, "è in acqua")
+	is_submerged = true
+
+
 func outWater():
-	pass
+	is_submerged=false
+	print(self.name, " è fuori dall'acqua")
+
+
+func _physics_process(delta: float) -> void:
+	if is_submerged:
+		#velocity.y = current_gravity * 0.03 * delta
+		print("pollo")
+	else:
+		#velocity.y = current_gravity * delta 
+		print("coglio")

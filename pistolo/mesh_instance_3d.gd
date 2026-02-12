@@ -1,5 +1,5 @@
+@tool
 extends MeshInstance3D
-
 
 @export var size := 400.0          # dimensione isola
 @export var resolution := 500     # più basso = più low poly

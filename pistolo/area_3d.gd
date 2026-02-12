@@ -13,10 +13,10 @@ func _process(delta):
 
 func _on_body_entered(body):
 	if body is waterable:
-		body.emit_signal("enter_water")
-
+		body.inWater()
+		
 
 
 func _on_body_exited(body):
 	if body is waterable:
-		body.emit_signal("exit_water")
+		body.outWater()
