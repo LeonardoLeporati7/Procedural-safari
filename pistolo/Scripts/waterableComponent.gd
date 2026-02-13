@@ -4,9 +4,9 @@ class_name waterableComponent
 
 var is_submerged = false
 var padre 
-@export var float_force_chBody = 14
+@export var float_force_chBody = 11
 @export var float_force_rgBody = 1
-@export var water_drag = 0.02
+@export var water_drag = 0.01
 var current_gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 
@@ -27,10 +27,13 @@ func outWater():
 func _physics_process(delta: float) -> void:
 	
 	
+	
 	if is_submerged and padre is CharacterBody3D:
 		padre.velocity.y +=  float_force_chBody * delta
 		padre.velocity.x = lerp(padre.velocity.x, 0.0, water_drag)
 		padre.velocity.z = lerp(padre.velocity.z, 0.0, water_drag)
 		padre.velocity.y = lerp(padre.velocity.y, 0.0, water_drag)
+
 	if is_submerged and padre is RigidBody3D:
-		padre.apply_central_force(Vector3.UP * float_force_rgBody * current_gravity)
+		padre.apply_central_force(Vector3.UP * float_force_rgBody)
+		
