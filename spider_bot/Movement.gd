@@ -12,7 +12,7 @@ extends Node3D
 @export_group("Settings Attacco")
 @export var is_attacking: bool = false 
 @export var ground_offset_normal: float = 0
-@export var ground_offset_attack: float = 0.2 
+@export var ground_offset_attack: float = 0.2
 
 var current_ground_offset: float = 0
 

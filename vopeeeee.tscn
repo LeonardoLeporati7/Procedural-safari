@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://gtfp8rcetasb"]
+
+[ext_resource type="PackedScene" uid="uid://cj78doqftmcrv" path="res://volpe.tscn" id="1_4getd"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_4getd"]
+
+[node name="CharacterBody3D" type="CharacterBody3D" unique_id=1237561969]
+
+[node name="Node3D" parent="." unique_id=1841285964 instance=ExtResource("1_4getd")]
+ground_offset_attack = 0.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=409724884]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 2.269637, 0)
+shape = SubResource("BoxShape3D_4getd")
+
+[editable path="Node3D"]
+[editable path="Node3D/Fox22"]

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://7ns70huqnvco"]
 
+[ext_resource type="PackedScene" uid="uid://gtfp8rcetasb" path="res://vopeeeee.tscn" id="2_0xm2m"]
 [ext_resource type="Material" uid="uid://h0omavrnsek5" path="res://materials/floor.tres" id="2_dgnap"]
-[ext_resource type="PackedScene" uid="uid://cj78doqftmcrv" path="res://volpe.tscn" id="3_h2yge"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_0xm2m"]
 sky_top_color = Color(0.6615751, 0.72105384, 0.8006541, 1)
@@ -51,14 +51,5 @@ omni_attenuation = -0.674
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1962456847]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28758192, 2.368678, 16.407276)
 
-[node name="Node3D" parent="." unique_id=1841285964 instance=ExtResource("3_h2yge")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5056973, 0.85894346, 1.6043377)
-move_speed = 10.0
-is_attacking = false
-ground_offset_attack = -0.5
-
-[node name="HeadIKTarget" parent="Node3D" index="1" unique_id=679983339]
-head_height_attack = 1.0
-
-[editable path="Node3D"]
-[editable path="Node3D/Fox22"]
+[node name="CharacterBody3D" parent="." unique_id=1237561969 instance=ExtResource("2_0xm2m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.364654, 0.7301775, 3.4336994)
