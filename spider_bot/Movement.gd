@@ -10,14 +10,10 @@ extends Node3D
 @export var gravity: float = 20.0     
 
 @export_group("Settings Attacco")
-# Variabile di stato (letta dagli altri script)
 @export var is_attacking: bool = false 
-# Altezza normale da terra
 @export var ground_offset_normal: float = 0
-# Altezza quando attacca (si schiaccia a terra)
 @export var ground_offset_attack: float = 0.2 
 
-# Variabile interna per l'altezza attuale
 var current_ground_offset: float = 0
 
 var vertical_velocity: float = 0.0    
@@ -29,56 +25,79 @@ signal stop_jumping
 @onready var rc_bl = $StepTargetContainer/BackLeftRay
 @onready var rc_br = $StepTargetContainer/BackRightRay
 
+# --- NUOVE VARIABILI PER "CONGELARE" IL PIANO ---
+var jump_p_fl: Vector3
+var jump_p_fr: Vector3
+var jump_p_bl: Vector3
+var jump_p_br: Vector3
+
 func _process(delta):
-	var p_bl = rc_bl.step_target.global_position
-	var p_br = rc_br.step_target.global_position
-	var p_fl = rc_fl.step_target.global_position
-	var p_fr = rc_fr.step_target.global_position
+	# 1. RECUPERO POSIZIONI PIEDI (LOGICA SNAPSHOT)
+	var p_fl: Vector3
+	var p_fr: Vector3
+	var p_bl: Vector3
+	var p_br: Vector3
+
+	if !is_jumping:
+		# SE SIAMO A TERRA: Leggiamo i Raycast in tempo reale
+		p_fl = rc_fl.step_target.global_position
+		p_fr = rc_fr.step_target.global_position
+		p_bl = rc_bl.step_target.global_position
+		p_br = rc_br.step_target.global_position
+		
+		# E salviamo continuamente queste posizioni come "ultimo punto valido"
+		jump_p_fl = p_fl
+		jump_p_fr = p_fr
+		jump_p_bl = p_bl
+		jump_p_br = p_br
+	else:
+		# SE STIAMO SALTANDO: Ignoriamo i Raycast!
+		# Usiamo le posizioni salvate all'istante del salto.
+		# Così il piano rotazionale rimane fisso come al decollo.
+		p_fl = jump_p_fl
+		p_fr = jump_p_fr
+		p_bl = jump_p_bl
+		p_br = jump_p_br
+
+	# 2. GESTIONE PARABOLA (Calcolata sui punti congelati se in aria)
 	var amount = clamp(abs(vertical_velocity) * 0.15, 0.0, 1.5)
 	
-	
-	# --- 1. GESTIONE INPUT ATTACCO (CORRETTA) ---
-	# Usiamo un solo blocco per controllare tutti i tasti di attacco.
-	# Usiamo "pressed" (premuto) invece di "just_pressed" così la volpe resta bassa finché tieni il tasto.
+	# --- GESTIONE INPUT ATTACCO ---
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		is_attacking = true
 	else:
 		is_attacking = false
 
-	var target_offset=ground_offset_normal
-	# --- 2. GESTIONE ALTEZZA DINAMICA ---
-	# Se attacco, il target è basso (0.2), altrimenti è normale (0.5)
-	if is_attacking :
+	var target_offset = ground_offset_normal
+	
+	# --- GESTIONE ROTAZIONE ATTACCO ---
+	if is_attacking:
 		target_offset = ground_offset_attack
 		var attack_offset = Vector3.ZERO
-		attack_offset.y+=target_offset 
-		print(attack_offset)
-		var plane_attack1= Plane(p_bl-attack_offset*4, p_fl+attack_offset, p_fr+attack_offset)
-		var plane_attack2 = Plane(p_fr+attack_offset, p_br-attack_offset*4, p_bl-attack_offset*4)
+		attack_offset.y += target_offset 
+		
+		# Qui usiamo i punti p_bl, p_fl ecc. (che sono live se a terra)
+		var plane_attack1 = Plane(p_bl - attack_offset * 4, p_fl + attack_offset, p_fr + attack_offset)
+		var plane_attack2 = Plane(p_fr + attack_offset, p_br - attack_offset * 4, p_bl - attack_offset * 4)
 		var avg_normal_attack = ((plane_attack1.normal + plane_attack2.normal) / 2).normalized()
 		var target_basis_attack = _basis_from_normal(avg_normal_attack)
 		transform.basis = transform.basis.slerp(target_basis_attack, 12.0 * delta).orthonormalized()
-	
-	else :
+	else:
 		target_offset = ground_offset_normal
 	
-	# Lerp fluido: 5.0 * delta determina quanto velocemente si abbassa/alza
 	current_ground_offset = lerp(current_ground_offset, target_offset, 5.0 * delta)
 
-	# --- 3. CALCOLO TERRENO ---
+	# --- CALCOLO ATTERRAGGIO (Raycast sempre attivi per questo!) ---
+	# Nota: Continuiamo a leggere i raycast QUI solo per sapere l'altezza del terreno sotto di noi
 	var avg_feet_y = (rc_fl.step_target.global_position.y + rc_fr.step_target.global_position.y + rc_bl.step_target.global_position.y + rc_br.step_target.global_position.y) / 4.0
-	
-	# Qui sommiamo l'offset dinamico calcolato sopra
 	var target_ground_y = avg_feet_y + current_ground_offset
-	print("target ground y :"+str(target_ground_y)+"avg feet y:"+str(avg_feet_y))
-	# --- 4. GESTIONE SALTO ---
+
+	# --- GESTIONE SALTO ---
 	if Input.is_action_just_pressed("ui_accept") and !is_jumping:
 		is_jumping = true	
 		vertical_velocity = jump_force
 		print("jumpo")
 	
-	# Nota: Ho rimosso il secondo check su "Attack" qui perché è già gestito sopra nel punto 1.
-
 	if is_jumping:
 		# FASE VOLO
 		vertical_velocity -= gravity * delta 
@@ -86,16 +105,20 @@ func _process(delta):
 		vertical_velocity = max(vertical_velocity, -50.0)
 		
 		# Rotazione Parabolica
+		# Modifichiamo copie locali dei punti congelati
+		var jump_mod_bl = p_bl
+		var jump_mod_br = p_br
 
 		if vertical_velocity > 0:
-			p_bl.y -= amount
-			p_br.y -= amount
+			jump_mod_bl.y -= amount
+			jump_mod_br.y -= amount
 		else:
-			p_bl.y += amount
-			p_br.y += amount
+			jump_mod_bl.y += amount
+			jump_mod_br.y += amount
 
-		var plane_jump1 = Plane(p_bl, p_fl, p_fr)
-		var plane_jump2 = Plane(p_fr, p_br, p_bl)
+		# Calcolo Plane basato sullo "Snapshot" del decollo + Parabola
+		var plane_jump1 = Plane(jump_mod_bl, p_fl, p_fr)
+		var plane_jump2 = Plane(p_fr, jump_mod_br, jump_mod_bl)
 		var avg_normal_jump = ((plane_jump1.normal + plane_jump2.normal) / 2).normalized()
 		var target_basis_jump = _basis_from_normal(avg_normal_jump)
 		transform.basis = transform.basis.slerp(target_basis_jump, 12.0 * delta).orthonormalized()
@@ -109,20 +132,16 @@ func _process(delta):
 			
 	else:
 		# --- FASE A TERRA ---
-		# Allineamento al terreno
-		var plane1 = Plane(rc_bl.step_target.global_position, rc_fl.step_target.global_position, rc_fr.step_target.global_position)
-		var plane2 = Plane(rc_fr.step_target.global_position, rc_br.step_target.global_position, rc_bl.step_target.global_position)
+		var plane1 = Plane(p_bl, p_fl, p_fr)
+		var plane2 = Plane(p_fr, p_br, p_bl)
 		var avg_normal = ((plane1.normal + plane2.normal) / 2).normalized()
 		
-		# Fix: Protezione se la normale è zero
 		if !avg_normal.is_normalized(): avg_normal = Vector3.UP
 		
 		var target_basis = _basis_from_normal(avg_normal)
 		transform.basis = transform.basis.slerp(target_basis, 10.0 * delta).orthonormalized()
 		
-		# Posizionamento Y fluido (Questo applica l'abbassamento del busto)
 		position.y = lerp(position.y, target_ground_y, 20.0 * delta)
-		#non va fatta la prediction perche puoi con le colline si abbassa il busto 
 	
 	_handle_movement(delta)
 

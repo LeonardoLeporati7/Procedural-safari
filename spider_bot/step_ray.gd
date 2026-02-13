@@ -35,4 +35,4 @@ func _physics_process(delta):
 		print("non sto toccando")
 		var reset_pos= default_local_pos
 		
-		step_target.global_position = to_global(reset_pos)
+		step_target.global_position = reset_pos

@@ -3,15 +3,32 @@
 [ext_resource type="Material" uid="uid://h0omavrnsek5" path="res://materials/floor.tres" id="2_dgnap"]
 [ext_resource type="PackedScene" uid="uid://cj78doqftmcrv" path="res://volpe.tscn" id="3_h2yge"]
 
-[sub_resource type="Environment" id="Environment_0xm2m"]
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_0xm2m"]
+sky_top_color = Color(0.6615751, 0.72105384, 0.8006541, 1)
+sky_horizon_color = Color(1.3000507, 1.2985513, 1.3001167, 1)
+ground_bottom_color = Color(0.5418495, 0.47637236, 0.4030338, 1)
+ground_horizon_color = Color(1.3000507, 1.2985513, 1.3001167, 1)
 
-[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_h2yge"]
+[sub_resource type="Sky" id="Sky_h2yge"]
+sky_material = SubResource("ProceduralSkyMaterial_0xm2m")
 
-[sub_resource type="Compositor" id="Compositor_1bvp3"]
-
-[sub_resource type="TorusMesh" id="TorusMesh_0xm2m"]
+[sub_resource type="Environment" id="Environment_1bvp3"]
+background_mode = 2
+sky = SubResource("Sky_h2yge")
 
 [node name="Main" type="Node3D" unique_id=18126565]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=100093080]
+environment = SubResource("Environment_1bvp3")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1353561072]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+light_energy = 1.55
+shadow_enabled = true
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="." unique_id=2113785286]
+transform = Transform3D(7, 0, 0, 0, 3, 0, 0, 0, 7, -2.5056973, -2.5039077, 3.117803)
+use_collision = true
 
 [node name="CSGBox3D" type="CSGBox3D" parent="." unique_id=1169985587]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30.204649, -3.4341164, 16.04824)
@@ -26,14 +43,10 @@ size = Vector3(251.79309, 0.001, 187.38794)
 material = ExtResource("2_dgnap")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1401448491]
+visible = false
 shadow_enabled = true
 omni_range = 55.615
 omni_attenuation = -0.674
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1652047972]
-environment = SubResource("Environment_0xm2m")
-camera_attributes = SubResource("CameraAttributesPractical_h2yge")
-compositor = SubResource("Compositor_1bvp3")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1962456847]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28758192, 2.368678, 16.407276)
@@ -46,11 +59,6 @@ ground_offset_attack = -0.5
 
 [node name="HeadIKTarget" parent="Node3D" index="1" unique_id=679983339]
 head_height_attack = 1.0
-
-[node name="CSGMesh3D" type="CSGMesh3D" parent="." unique_id=1607066250]
-transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -4.383112, 0, 1.7709627)
-use_collision = true
-mesh = SubResource("TorusMesh_0xm2m")
 
 [editable path="Node3D"]
 [editable path="Node3D/Fox22"]
