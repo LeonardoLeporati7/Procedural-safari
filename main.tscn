@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://7ns70huqnvco"]
 
-[ext_resource type="PackedScene" uid="uid://gtfp8rcetasb" path="res://vopeeeee.tscn" id="2_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://cta2p5578g16e" path="res://v.tscn" id="2_0xm2m"]
 [ext_resource type="Material" uid="uid://h0omavrnsek5" path="res://materials/floor.tres" id="2_dgnap"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_0xm2m"]
@@ -51,5 +51,5 @@ omni_attenuation = -0.674
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1962456847]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28758192, 2.368678, 16.407276)
 
-[node name="CharacterBody3D" parent="." unique_id=1237561969 instance=ExtResource("2_0xm2m")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.364654, 0.7301775, 3.4336994)
+[node name="CharacterBody3D" parent="." unique_id=1231883861 instance=ExtResource("2_0xm2m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9098053, -3.4316847, -6.5166454)
