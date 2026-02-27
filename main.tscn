@@ -49,7 +49,7 @@ omni_range = 55.615
 omni_attenuation = -0.674
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1962456847]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28758192, 2.368678, 16.407276)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28758192, 2.368678, 2.1263428)
 
 [node name="CharacterBody3D" parent="." unique_id=1231883861 instance=ExtResource("2_0xm2m")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9098053, -3.4316847, -6.5166454)
