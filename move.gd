@@ -110,8 +110,7 @@ func _update_anim_conditions(is_moving: bool, is_sprinting: bool):
 	if not is_on_floor():
 		if is_sprinting:
 			anim_tree[path + "gallop_jump"] = true
-		else: 
-			anim_tree[path + "jump"] = true
+
 		return
 
 	# Controllo Cibo
