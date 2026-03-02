@@ -1,9 +1,8 @@
-@tool
 extends MeshInstance3D
 
-@export var size := 400.0          # dimensione isola
+@export var size := 300.0          # dimensione isola
 @export var resolution := 500     # più basso = più low poly
-@export var height := 10    # altezza massima
+@export var height := 13    # altezza massima
 
 @export var noise_scale := 0.02
 
@@ -59,8 +58,6 @@ func generate_terrain():
 			colors[i]= Color(randf_range(0.300, 0.325), randf_range(0.5, 0.55), randf_range(0.20, 0.25), 1.0)
 		else:
 			colors[i]= Color(1.0, 1.0, 1.0, 1.0)
-			
-		
 		
 		
 		var beach_start := 0.75
@@ -84,4 +81,5 @@ func generate_terrain():
 	collision_shape.shape = mesh.create_trimesh_shape()
 	
 	self.mesh = mesh
+
 	
