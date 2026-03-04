@@ -52,10 +52,12 @@ advance_mode = 2
 advance_condition = &"idle"
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_liws5"]
+xfade_time = 1.0
 advance_mode = 2
 advance_condition = &"walk"
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_4k26x"]
+xfade_time = 1.0
 advance_mode = 2
 advance_condition = &"gallop"
 
@@ -88,10 +90,12 @@ advance_mode = 2
 advance_condition = &"eating"
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_hxsjh"]
+xfade_time = 1.0
 advance_mode = 2
 advance_condition = &"idle"
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_v3y6n"]
+xfade_time = 1.0
 advance_mode = 2
 advance_condition = &"walk"
 
@@ -138,8 +142,8 @@ states/Walk/position = Vector2(337.2, 112.8)
 transitions = ["Death", "End", SubResource("AnimationNodeStateMachineTransition_umgdl"), "Start", "Idle", SubResource("AnimationNodeStateMachineTransition_1lbhk"), "Idle", "Walk", SubResource("AnimationNodeStateMachineTransition_liws5"), "Walk", "Gallop", SubResource("AnimationNodeStateMachineTransition_4k26x"), "Gallop", "Gallop_Jump", SubResource("AnimationNodeStateMachineTransition_2qwft"), "Idle", "Attack", SubResource("AnimationNodeStateMachineTransition_3fk7r"), "Walk", "Attack", SubResource("AnimationNodeStateMachineTransition_k04s8"), "Gallop", "Attack", SubResource("AnimationNodeStateMachineTransition_qy2lr"), "Idle", "Eating", SubResource("AnimationNodeStateMachineTransition_dd5qh"), "Walk", "Eating", SubResource("AnimationNodeStateMachineTransition_e7fmq"), "Gallop", "Eating", SubResource("AnimationNodeStateMachineTransition_a42kr"), "Walk", "Idle", SubResource("AnimationNodeStateMachineTransition_hxsjh"), "Gallop", "Walk", SubResource("AnimationNodeStateMachineTransition_v3y6n"), "Gallop_Jump", "Gallop", SubResource("AnimationNodeStateMachineTransition_latjl"), "Eating", "Idle", SubResource("AnimationNodeStateMachineTransition_hyw6d"), "Attack", "Idle", SubResource("AnimationNodeStateMachineTransition_yf4vi"), "Attack", "Walk", SubResource("AnimationNodeStateMachineTransition_iira6"), "Attack", "Gallop", SubResource("AnimationNodeStateMachineTransition_x58fq"), "Eating", "Gallop", SubResource("AnimationNodeStateMachineTransition_r4ds1")]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_0styq"]
-radius = 0.3515625
-height = 0.8666992
+radius = 0.3338623
+height = 0.7148285
 
 [node name="CharacterBody3D" type="CharacterBody3D" unique_id=1231883861 node_paths=PackedStringArray("visual_model", "fr_rc", "fl_rc", "br_rc", "bl_rc")]
 script = ExtResource("1_1jr48")
@@ -446,7 +450,7 @@ script = ExtResource("3_e1x64")
 step_target = NodePath("../../Targets/BL_target")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1080556696]
-transform = Transform3D(3.9999757, 1.8474111e-12, -0.0139482375, -0.0139482375, 1.0530626e-09, -3.9999757, 1.8474111e-12, 4, 1.0530626e-09, 0.64079344, 1.5532396, -0.22574139)
+transform = Transform3D(3.9999757, 1.8474111e-12, -0.0139482375, -0.0139482375, 1.0530626e-09, -3.9999757, 1.8474111e-12, 4, 1.0530626e-09, 0.64079344, 1.4013684, 0.0002412796)
 shape = SubResource("CapsuleShape3D_0styq")
 
 [editable path="Fox"]
