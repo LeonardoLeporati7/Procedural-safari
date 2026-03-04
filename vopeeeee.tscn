@@ -5,6 +5,7 @@
 [sub_resource type="BoxShape3D" id="BoxShape3D_4getd"]
 
 [node name="CharacterBody3D" type="CharacterBody3D" unique_id=1237561969]
+wall_min_slide_angle = 0.0
 
 [node name="Node3D" parent="." unique_id=1841285964 instance=ExtResource("1_4getd")]
 ground_offset_attack = 0.0

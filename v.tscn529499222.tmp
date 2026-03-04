@@ -142,8 +142,23 @@ radius = 0.3515625
 height = 0.8666992
 
 [node name="CharacterBody3D" type="CharacterBody3D" unique_id=1231883861 node_paths=PackedStringArray("visual_model", "fr_rc", "fl_rc", "br_rc", "bl_rc")]
+safe_margin = 0.5
 script = ExtResource("1_1jr48")
+WALK_SPEED = null
+GALLOP_SPEED = null
+ACCELERATION = null
+FRICTION = null
+JUMP_VELOCITY = 9.0
+ROTATION_SPEED = null
 visual_model = NodePath("Fox")
+is_low_health = null
+is_dead = null
+STAMINA_MAX = null
+STAMINA_DRAIN = null
+STAMINA_RECOVER = null
+ATTACK_COOLDOWN = null
+MAX_SLOPE_ANGLE = null
+SLOPE_TILT_SPEED = null
 fr_rc = NodePath("RayCast/FR_rc")
 fl_rc = NodePath("RayCast/FL_rc")
 br_rc = NodePath("RayCast/BR_rc")
@@ -446,7 +461,7 @@ script = ExtResource("3_e1x64")
 step_target = NodePath("../../Targets/BL_target")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1080556696]
-transform = Transform3D(3.9999757, 1.8474111e-12, -0.0139482375, -0.0139482375, 1.0530626e-09, -3.9999757, 1.8474111e-12, 4, 1.0530626e-09, 0.64079344, 1.5532396, -0.22574139)
+transform = Transform3D(3.9999757, 1.8474111e-12, -0.0139482375, -0.0139482375, 1.0530626e-09, -3.9999757, 1.8474111e-12, 4, 1.0530626e-09, 0.64079344, 1.8747206, -0.22574139)
 shape = SubResource("CapsuleShape3D_0styq")
 
 [editable path="Fox"]
