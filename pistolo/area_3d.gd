@@ -13,7 +13,7 @@ func _process(delta):
 
 func _on_body_entered(body):
 	if GeneralSingleton.hasComponent(body, waterableComponent):
-		body.get_node("waterableComponent").inWater()
+		body.get_node("waterableComponent").inWater(self)
 		
 
 

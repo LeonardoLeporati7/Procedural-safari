@@ -8,13 +8,14 @@ var padre
 @export var float_force_rgBody = 1
 @export var water_drag = 0.01
 var current_gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
-
+var current_fluid 
 
 func _ready():
 	padre = get_parent()
 	
 
-func inWater():
+func inWater(fluid):
+	current_fluid=fluid
 	print(padre.name, "è in acqua")
 	is_submerged = true
 
@@ -29,11 +30,14 @@ func _physics_process(delta: float) -> void:
 	
 	
 	if is_submerged and padre is CharacterBody3D:
-		padre.velocity.y +=  float_force_chBody * delta
+		var depth = clamp((current_fluid.position.y - padre.position.y) * 0.62, -1, 1.5)
+		#print(depth)
+		
+		padre.velocity.y +=  float_force_chBody * delta 
 		padre.velocity.x = lerp(padre.velocity.x, 0.0, water_drag)
 		padre.velocity.z = lerp(padre.velocity.z, 0.0, water_drag)
 		padre.velocity.y = lerp(padre.velocity.y, 0.0, water_drag)
-
+		
 	if is_submerged and padre is RigidBody3D:
 		padre.apply_central_force(Vector3.UP * float_force_rgBody)
 		
