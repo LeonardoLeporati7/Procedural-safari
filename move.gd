@@ -195,13 +195,23 @@ func _update_anim_conditions(is_moving: bool, is_sprinting: bool) -> void:
 	anim_tree[p + "gallop"]      = false
 	anim_tree[p + "gallop_jump"] = false
 	anim_tree[p + "eating"]      = false
+	anim_tree[p + "jump"]        = false
+	anim_tree[p + "attack"]      = false
 
 	if is_dead:
 		return
 
+	# Attacco — priorità alta, può partire da idle/walk/gallop
+	if is_attacking:
+		anim_tree[p + "attack"] = true
+		return
+
+	# In aria
 	if not is_on_floor():
 		if is_sprinting:
 			anim_tree[p + "gallop_jump"] = true
+		else:
+			anim_tree[p + "jump"] = true  # da idle o walk
 		return
 
 	if is_eating:
