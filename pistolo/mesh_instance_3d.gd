@@ -22,7 +22,7 @@ func _ready():
 
 	# Macro forma
 	noise_macro.seed = seed_value
-	noise_macro.frequency = 0.01
+	noise_macro.frequency = 0.007
 
 	# Maschera montagne
 	noise_mask.seed = seed_value + 100
@@ -34,7 +34,7 @@ func _ready():
 
 	# Dettaglio fine
 	noise_detail.seed = seed_value + 300
-	noise_detail.frequency = 0.0015
+	noise_detail.frequency = 0.005
 
 	generate_terrain()
 
@@ -98,7 +98,7 @@ func generate_terrain():
 		if(height_percent <= -0.01):
 			
 			colors[i]= Color(0.797, 0.608, 0.323, 1.0)
-		elif (height_percent < 0.50):
+		elif (height_percent < 0.70):
 			colors[i]= Color(randf_range(0.300, 0.325), randf_range(0.5, 0.55), randf_range(0.20, 0.25), 1.0)
 		else:
 			colors[i]= Color(1.0, 1.0, 1.0, 1.0)
