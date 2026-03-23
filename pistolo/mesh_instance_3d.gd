@@ -1,8 +1,8 @@
 extends MeshInstance3D
 
-@export var size := 300.0          # dimensione isola
-@export var resolution := 500     # più basso = più low poly
-@export var height := 13    # altezza massima
+@export var size := 700.0          # dimensione isola
+@export var resolution := 800     # più basso = più low poly
+@export var height := 15    # altezza massima
 
 @export var noise_scale := 0.02
 
@@ -95,16 +95,16 @@ func generate_terrain():
 		var height_percent = (v.y + 1.0) / (height + 1.0) 
 		height_percent = clamp(height_percent, -1.0, 1.0)
 		
-		if(height_percent <= -0.01):
+		if(height_percent <= 0.1):
 			
 			colors[i]= Color(0.797, 0.608, 0.323, 1.0)
-		elif (height_percent < 0.70):
+		elif (height_percent < randf_range(0.60, 0.80)):
 			colors[i]= Color(randf_range(0.300, 0.325), randf_range(0.5, 0.55), randf_range(0.20, 0.25), 1.0)
 		else:
 			colors[i]= Color(1.0, 1.0, 1.0, 1.0)
 		
 		
-		var beach_start := 0.75
+		var beach_start := 0.65
 		var beach_end := 0.9
 
 		if dist > beach_start:
