@@ -1,0 +1,60 @@
+[gd_scene format=3 uid="uid://c1bw7jp018lgv"]
+
+[ext_resource type="Script" uid="uid://c5k2boh7464s4" path="res://area_3d.gd" id="1_8ycdw"]
+[ext_resource type="Shader" uid="uid://bd3ggakc766ys" path="res://node_2d.gdshader" id="2_qo7pj"]
+[ext_resource type="Script" uid="uid://cmnjkjtpqt4ei" path="res://acqua_2.gd" id="3_bsbsw"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_q6r6c"]
+size = Vector3(403.8022, 30.967785, 201.73763)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_0e48y"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_hgtaw"]
+noise = SubResource("FastNoiseLite_0e48y")
+seamless = true
+as_normal_map = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_epypp"]
+render_priority = 0
+shader = ExtResource("2_qo7pj")
+shader_parameter/albedo = Color(0, 0.77172065, 0.9138015, 0.569)
+shader_parameter/albedo_texture_size = Vector2i(0, 0)
+shader_parameter/point_size = 1.0
+shader_parameter/roughness = 0.0
+shader_parameter/metallic_texture_channel = Vector4(1, 0, 0, 0)
+shader_parameter/specular = 0.5
+shader_parameter/metallic = 0.0
+shader_parameter/texture_refraction = SubResource("NoiseTexture2D_hgtaw")
+shader_parameter/refraction = 0.05
+shader_parameter/refraction_texture_channel = Vector4(1, 0, 0, 0)
+shader_parameter/texture_normal = SubResource("NoiseTexture2D_hgtaw")
+shader_parameter/normal_scale = 1.0
+shader_parameter/uv1_blend_sharpness = 1.0
+shader_parameter/uv1_scale = Vector3(0.1, 0.1, 0.1)
+shader_parameter/uv1_offset = Vector3(0, 0, 0)
+shader_parameter/uv2_scale = Vector3(1, 1, 1)
+shader_parameter/uv2_offset = Vector3(0, 0, 0)
+shader_parameter/wave_speed = 2.0
+shader_parameter/wave_height = 0.2
+shader_parameter/wave_freq = 3.0
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_epypp"]
+size = Vector2(600, 600)
+subdivide_width = 256
+subdivide_depth = 256
+
+[node name="acquaArea" type="Area3D" unique_id=1623203186]
+script = ExtResource("1_8ycdw")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1520270868]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15031433, -16.778286, -2.0106506)
+shape = SubResource("BoxShape3D_q6r6c")
+
+[node name="acqua2" type="MeshInstance3D" parent="." unique_id=383328961]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5229707, -1.3775101, -0.06988382)
+material_override = SubResource("ShaderMaterial_epypp")
+mesh = SubResource("PlaneMesh_epypp")
+script = ExtResource("3_bsbsw")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_body_exited"]

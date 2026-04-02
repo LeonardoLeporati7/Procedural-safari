@@ -98,8 +98,17 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4339914, 0)
 
 [node name="CharacterBody3D" parent="." unique_id=1231883861 instance=ExtResource("5_q6r6c")]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 31.126743, 24.080322, 15.420352)
-
-[node name="waterableComponent" type="Node3D" parent="CharacterBody3D" unique_id=760371137]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.667825, -3.9208016, -4.5223827)
-script = ExtResource("4_d21ai")
-metadata/_custom_type_script = "uid://q3u78uxx3cir"
+WALK_SPEED = null
+GALLOP_SPEED = null
+ACCELERATION = null
+FRICTION = null
+JUMP_VELOCITY = null
+ROTATION_SPEED = null
+is_low_health = null
+is_dead = null
+STAMINA_MAX = null
+STAMINA_DRAIN = null
+STAMINA_RECOVER = null
+ATTACK_COOLDOWN = null
+MAX_SLOPE_ANGLE = null
+SLOPE_TILT_SPEED = null

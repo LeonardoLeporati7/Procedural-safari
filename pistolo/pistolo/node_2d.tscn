@@ -4,7 +4,6 @@
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller.tscn" id="2_0e48y"]
 [ext_resource type="PackedScene" uid="uid://c1bw7jp018lgv" path="res://acqua_area.tscn" id="4_0hol4"]
 [ext_resource type="Script" uid="uid://q3u78uxx3cir" path="res://Scripts/waterableComponent.gd" id="4_d21ai"]
-[ext_resource type="PackedScene" uid="uid://cta2p5578g16e" path="res://v.tscn" id="5_q6r6c"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_0e48y"]
 sky_top_color = Color(0.24288344, 0.5737913, 0.8987245, 1)
@@ -95,11 +94,3 @@ metadata/_custom_type_script = "uid://q3u78uxx3cir"
 
 [node name="acquaArea" parent="." unique_id=1623203186 instance=ExtResource("4_0hol4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4339914, 0)
-
-[node name="CharacterBody3D" parent="." unique_id=1231883861 instance=ExtResource("5_q6r6c")]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 31.126743, 24.080322, 15.420352)
-
-[node name="waterableComponent" type="Node3D" parent="CharacterBody3D" unique_id=760371137]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.667825, -3.9208016, -4.5223827)
-script = ExtResource("4_d21ai")
-metadata/_custom_type_script = "uid://q3u78uxx3cir"

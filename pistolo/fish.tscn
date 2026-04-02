@@ -1,0 +1,34 @@
+[gd_scene format=3 uid="uid://gmfb560i80x1"]
+
+[ext_resource type="Script" uid="uid://dyf1xambajmox" path="res://fish.gd" id="1_hgn23"]
+[ext_resource type="PackedScene" uid="uid://srqefnfu7q16" path="res://Fish (1).glb" id="2_6ik3a"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_0styq"]
+radius = 0.21484375
+height = 1.8838491
+
+[node name="CharacterBody3D" type="CharacterBody3D" unique_id=1231883861]
+script = ExtResource("1_hgn23")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1080556696]
+transform = Transform3D(3.9999757, 1.8474111e-12, -0.0139482375, -0.0139482375, 1.0530626e-09, -3.9999757, 1.8474111e-12, 4, 1.0530626e-09, 0.019369483, 1.5507228, -2.351605)
+shape = SubResource("CapsuleShape3D_0styq")
+
+[node name="Root Scene" parent="." unique_id=1030841946 instance=ExtResource("2_6ik3a")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.13569188, 1.3906045, -1.4487293)
+
+[node name="Skeleton3D" parent="Root Scene/RootNode/Armature" parent_id_path=PackedInt32Array(1030841946, 712733440) index="0" unique_id=1033843706]
+bones/0/rotation = Quaternion(0.69303674, 1.7462298e-09, 2.0562063e-10, 0.72090226)
+bones/3/rotation = Quaternion(0.005142715, -0.0010689266, -0.018006708, 0.99982405)
+bones/4/rotation = Quaternion(-0.054941036, -0.00013788046, -0.031113423, 0.9980048)
+
+[node name="Tail" parent="Root Scene/RootNode/Armature/Skeleton3D" index="0" unique_id=320249663]
+transform = Transform3D(0.99574417, 0.09206357, 0.0041667563, -0.09215606, 0.9944301, 0.051145136, 0.000565056, -0.051311485, 0.99868244, 0.00039875228, 0.032803565, 0.0020000665)
+
+[node name="Face" parent="Root Scene/RootNode/Armature/Skeleton3D" index="1" unique_id=391327498]
+transform = Transform3D(1, 1.6061293e-09, 3.095777e-06, -1.8513454e-07, -0.99817896, 0.060320158, 3.0902365e-06, -0.060320154, -0.998179, 2.4281837e-05, -0.018313587, 0.00012910459)
+
+[node name="ClownFish" parent="Root Scene/RootNode/Armature/Skeleton3D" index="2" unique_id=1876789205]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0027758097, -9.313226e-10)
+
+[editable path="Root Scene"]
