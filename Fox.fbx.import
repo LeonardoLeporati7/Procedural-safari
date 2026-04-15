@@ -41,7 +41,7 @@ _subresources={
 "animations": {
 "AnimalArmature|AnimalArmature|AnimalArmature|Attack": {
 "save_to_file/enabled": true,
-"save_to_file/fallback_path": "res://Animazione/Attack.anim",
+"save_to_file/fallback_path": "res://fox_portable/animation/Attack.anim",
 "save_to_file/keep_custom_tracks": true,
 "save_to_file/path": "uid://byhnsmodqckpc",
 "settings/loop_mode": 0,
@@ -2097,7 +2097,7 @@ _subresources={
 },
 "AnimalArmature|AnimalArmature|AnimalArmature|Death": {
 "save_to_file/enabled": true,
-"save_to_file/fallback_path": "res://Animazione/Death.anim",
+"save_to_file/fallback_path": "res://fox_portable/animation/Death.anim",
 "save_to_file/keep_custom_tracks": true,
 "save_to_file/path": "uid://df4w0i3h376iv",
 "settings/loop_mode": 0,
@@ -4153,7 +4153,7 @@ _subresources={
 },
 "AnimalArmature|AnimalArmature|AnimalArmature|Eating": {
 "save_to_file/enabled": true,
-"save_to_file/fallback_path": "res://Animazione/Eating.anim",
+"save_to_file/fallback_path": "res://fox_portable/animation/Eating.anim",
 "save_to_file/keep_custom_tracks": true,
 "save_to_file/path": "uid://bl6roplgudyx4",
 "settings/loop_mode": 0,
@@ -6209,7 +6209,7 @@ _subresources={
 },
 "AnimalArmature|AnimalArmature|AnimalArmature|Gallop": {
 "save_to_file/enabled": true,
-"save_to_file/fallback_path": "res://Animazione/Gallop.anim",
+"save_to_file/fallback_path": "res://fox_portable/animation/Gallop.anim",
 "save_to_file/keep_custom_tracks": true,
 "save_to_file/path": "uid://blnia7w7xmend",
 "settings/loop_mode": 1,
@@ -8265,7 +8265,7 @@ _subresources={
 },
 "AnimalArmature|AnimalArmature|AnimalArmature|Gallop_Jump": {
 "save_to_file/enabled": true,
-"save_to_file/fallback_path": "res://Animazione/Gallop_Jump.anim",
+"save_to_file/fallback_path": "res://fox_portable/animation/Gallop_Jump.anim",
 "save_to_file/keep_custom_tracks": true,
 "save_to_file/path": "uid://t4yy40w321cw",
 "settings/loop_mode": 0,
@@ -10321,7 +10321,7 @@ _subresources={
 },
 "AnimalArmature|AnimalArmature|AnimalArmature|Idle": {
 "save_to_file/enabled": true,
-"save_to_file/fallback_path": "res://Animazione/Idle.anim",
+"save_to_file/fallback_path": "res://fox_portable/animation/Idle.anim",
 "save_to_file/keep_custom_tracks": true,
 "save_to_file/path": "uid://ml44yh0lomn0",
 "settings/loop_mode": 0,
@@ -12377,7 +12377,7 @@ _subresources={
 },
 "AnimalArmature|AnimalArmature|AnimalArmature|Jump_ToIdle": {
 "save_to_file/enabled": true,
-"save_to_file/fallback_path": "res://Animazione/Jump_Idle.res",
+"save_to_file/fallback_path": "res://fox_portable/animation/Jump_Idle.res",
 "save_to_file/keep_custom_tracks": true,
 "save_to_file/path": "uid://bd144kok1fldr",
 "settings/loop_mode": 0,
@@ -14433,7 +14433,7 @@ _subresources={
 },
 "AnimalArmature|AnimalArmature|AnimalArmature|Walk": {
 "save_to_file/enabled": true,
-"save_to_file/fallback_path": "res://Animazione/Walk.anim",
+"save_to_file/fallback_path": "res://fox_portable/animation/Walk.anim",
 "save_to_file/keep_custom_tracks": true,
 "save_to_file/path": "uid://ds4x8peccdq6l",
 "settings/loop_mode": 1,
@@ -16489,7 +16489,7 @@ _subresources={
 },
 "AnimalArmature|AnimalArmature|Jump_ToIdle": {
 "save_to_file/enabled": true,
-"save_to_file/fallback_path": "res://Animazione/Jump.anim",
+"save_to_file/fallback_path": "res://fox_portable/animation/Jump.anim",
 "save_to_file/keep_custom_tracks": true,
 "save_to_file/path": "uid://d2t024fkysftr",
 "settings/loop_mode": 0,
