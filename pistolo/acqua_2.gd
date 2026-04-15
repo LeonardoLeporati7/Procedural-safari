@@ -10,6 +10,7 @@ func _ready():
 	var altezzaRel = (terr.height*(1.4))/8
 	
 	self.mesh.size = Vector2(waterSize, waterSize)
+	collShape.shape.size = Vector3(waterSize, 32, waterSize)
 	
 	
 	print("mia altezza: " , position.y , ", altozza della capo: " , terr.height)
