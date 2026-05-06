@@ -7,6 +7,15 @@ extends Node3D
 @export var min_dist    : float = 2.0    # distanza minima tra alberi — più alto = meno fitti
 
 
+func _find_mesh(node: Node) -> MeshInstance3D:
+	if node is MeshInstance3D:
+		return node
+	for c in node.get_children():
+		var r := _find_mesh(c)
+		if r: return r
+	return null
+
+
 func apply_scatter(vertices: PackedVector3Array, terrain_size: float, terrain_height: float) -> void:
 	# Raccoglie i vertici validi
 	var candidates : PackedVector3Array = []
@@ -16,15 +25,15 @@ func apply_scatter(vertices: PackedVector3Array, terrain_size: float, terrain_he
 		if hp >= hp_min and hp <= hp_max and dist <= dist_max:
 			candidates.append(v)
 
-	# Mesh albero: cilindro verde
-	var geo := CylinderMesh.new()
-	geo.top_radius    = 0.5
-	geo.bottom_radius = 0.5
-	geo.height        = 3.0
-
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.648, 0.394, 0.143, 1.0)
-	geo.surface_set_material(0, mat)
+	# Mesh albero: caricata dal .glb
+	var scene : PackedScene = preload("res://assets/tree1/Untitled.gltf")
+	var temp  : Node3D      = scene.instantiate()
+	
+	add_child(temp)
+	var mi  := _find_mesh(temp)
+	var geo := mi.mesh
+	remove_child(temp)
+	temp.queue_free()
 
 	# Piazza alberi rispettando la distanza minima
 	var tempArr := Array(candidates)
