@@ -1,9 +1,10 @@
 extends Node3D
 
-@export var tree_count  : int   = 500
+@export var tree_count  : int   = 2000
 @export var hp_min      : float = 0.10
 @export var hp_max      : float = 0.55
 @export var dist_max    : float = 0.78   # non oltre questo raggio (0=centro, 1=bordo)
+@export var min_dist    : float = 2.0    # distanza minima tra alberi — più alto = meno fitti
 
 
 func apply_scatter(vertices: PackedVector3Array, terrain_size: float, terrain_height: float) -> void:
@@ -11,7 +12,7 @@ func apply_scatter(vertices: PackedVector3Array, terrain_size: float, terrain_he
 	var candidates : PackedVector3Array = []
 	for v in vertices:
 		var dist := Vector2(v.x, v.z).length() / (terrain_size * 0.5)
-		var hp  = clamp((v.y + 1.0) / (terrain_height + 1.0), 0.0, 1.0)
+		var hp   = clamp((v.y + 1.0) / (terrain_height + 1.0), 0.0, 1.0)
 		if hp >= hp_min and hp <= hp_max and dist <= dist_max:
 			candidates.append(v)
 
@@ -25,22 +26,34 @@ func apply_scatter(vertices: PackedVector3Array, terrain_size: float, terrain_he
 	mat.albedo_color = Color(0.648, 0.394, 0.143, 1.0)
 	geo.surface_set_material(0, mat)
 
+	# Piazza alberi rispettando la distanza minima
+	var tempArr := Array(candidates)
+	tempArr.shuffle()
+	candidates = PackedVector3Array(tempArr)
+
+	var placed    : PackedVector3Array = []
+	var min_dist2 := min_dist * min_dist
+
+	for v in candidates:
+		if placed.size() >= tree_count:
+			break
+		var too_close := false
+		for p in placed:
+			if Vector2(v.x, v.z).distance_squared_to(Vector2(p.x, p.z)) < min_dist2:
+				too_close = true
+				break
+		if not too_close:
+			placed.append(v)
+
 	# MultiMesh
-	var count := mini(tree_count, candidates.size())
-	var mm    := MultiMesh.new()
+	var mm := MultiMesh.new()
 	mm.mesh             = geo
 	mm.transform_format = MultiMesh.TRANSFORM_3D
-	mm.instance_count   = count
+	mm.instance_count   = placed.size()
 
-	var rng := RandomNumberGenerator.new()
-	rng.randomize()
-
-	for i in count:
-		# Seleziona un vertice casuale da candidates: rng.randi() genera un numero casuale, 
-		# % candidates.size() lo limita all'intervallo valido, quindi accede all'elemento
-		var v := candidates[rng.randi() % candidates.size()]
+	for i in placed.size():
 		var t := Transform3D()
-		t.origin = v + Vector3(0, 1.5, 0)   # centro del cilindro sopra il terreno
+		t.origin = placed[i] + Vector3(0, 1.5, 0)
 		mm.set_instance_transform(i, t)
 
 	var mmi := MultiMeshInstance3D.new()

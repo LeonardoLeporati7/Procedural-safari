@@ -100,6 +100,7 @@ func generate_terrain() -> void:
 	# Il nodo "Scatter" deve essere fratello di questo MeshInstance3D nella scena.
 	var scatter = get_node_or_null("../Scatter")
 	if scatter and scatter.has_method("apply_scatter"):
+		
 		scatter.apply_scatter(vertices, size, height)
 	else:
 		push_warning("Terrain: nodo 'Scatter' non trovato o manca il metodo apply_scatter().")
