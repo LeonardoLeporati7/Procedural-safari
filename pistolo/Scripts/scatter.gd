@@ -4,8 +4,7 @@ extends Node3D
 @export var hp_min      : float = 0.10
 @export var hp_max      : float = 0.55
 @export var dist_max    : float = 0.78   # non oltre questo raggio (0=centro, 1=bordo)
-@export var min_dist    : float = 2.0    # distanza minima tra alberi — più alto = meno fitti
-
+@export var min_dist    : float = 2.0    
 
 func _find_mesh(node: Node) -> MeshInstance3D:
 	if node is MeshInstance3D:
@@ -32,6 +31,7 @@ func apply_scatter(vertices: PackedVector3Array, terrain_size: float, terrain_he
 	add_child(temp)
 	var mi  := _find_mesh(temp)
 	var geo := mi.mesh
+	#fare modifiche qui 
 	remove_child(temp)
 	temp.queue_free()
 
@@ -62,6 +62,8 @@ func apply_scatter(vertices: PackedVector3Array, terrain_size: float, terrain_he
 
 	for i in placed.size():
 		var t := Transform3D()
+		t = t.scaled(Vector3(8.0, 8.0, 8.0))
+		t = t.translated(Vector3(0.0, 5.0, 0.0))
 		t.origin = placed[i] + Vector3(0, 1.5, 0)
 		mm.set_instance_transform(i, t)
 
