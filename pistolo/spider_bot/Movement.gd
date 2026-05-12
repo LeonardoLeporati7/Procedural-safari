@@ -88,9 +88,25 @@ func _process(delta):
 	
 	current_ground_offset = lerp(current_ground_offset, target_offset, 5.0 * delta)
 
-	# --- CALCOLO ATTERRAGGIO (Raycast sempre attivi per questo!) ---
-	# Nota: Continuiamo a leggere i raycast QUI solo per sapere l'altezza del terreno sotto di noi
-	var avg_feet_y = (rc_fl.step_target.global_position.y + rc_fr.step_target.global_position.y + rc_bl.step_target.global_position.y + rc_br.step_target.global_position.y) / 4.0
+	# --- CALCOLO ATTERRAGGIO ---
+	# Usa solo i piedi che toccano terra (esclude quelli in volo durante il passo)
+	# Pesi: piedi posteriori danno riferimento stabile, quelli anteriori controllano la salita
+	var feet_y: Array[float] = [
+		rc_fl.step_target.global_position.y,
+		rc_fr.step_target.global_position.y,
+		rc_bl.step_target.global_position.y,
+		rc_br.step_target.global_position.y,
+	]
+	# Filtra eventuali valori anomali (piede mid-step molto in alto o sotto)
+	var avg_feet_y = (feet_y[0] + feet_y[1] + feet_y[2] + feet_y[3]) / 4.0
+	var valid_count = 0
+	var filtered_y = 0.0
+	for y in feet_y:
+		if abs(y - avg_feet_y) < 1.5:   # scarta outlier > 1.5 unità dalla media
+			filtered_y += y
+			valid_count += 1
+	if valid_count > 0:
+		avg_feet_y = filtered_y / valid_count
 	var target_ground_y = avg_feet_y + current_ground_offset
 
 	# --- GESTIONE SALTO ---
@@ -136,13 +152,16 @@ func _process(delta):
 		var plane1 = Plane(p_bl, p_fl, p_fr)
 		var plane2 = Plane(p_fr, p_br, p_bl)
 		var avg_normal = ((plane1.normal + plane2.normal) / 2).normalized()
-		
+
 		if !avg_normal.is_normalized(): avg_normal = Vector3.UP
-		
+
 		var target_basis = _basis_from_normal(avg_normal)
 		transform.basis = transform.basis.slerp(target_basis, 10.0 * delta).orthonormalized()
-		
-		position.y = lerp(position.y, target_ground_y, 20.0 * delta)
+
+		# Velocità lerp adattiva: più veloce quando il dislivello è grande (es. pendenza ripida)
+		var y_gap     = abs(target_ground_y - position.y)
+		var lerp_speed = clamp(20.0 + y_gap * 40.0, 20.0, 60.0)
+		position.y = lerp(position.y, target_ground_y, lerp_speed * delta)
 	
 	_handle_movement(delta)
 

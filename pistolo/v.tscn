@@ -13,6 +13,8 @@
 [ext_resource type="Animation" uid="uid://d2t024fkysftr" path="res://Animazione/Jump.anim" id="10_iira6"]
 [ext_resource type="Animation" uid="uid://bd144kok1fldr" path="res://Animazione/Jump_Idle.res" id="11_x58fq"]
 [ext_resource type="Script" uid="uid://dmg2wu08tny5k" path="res://fr_rc.gd" id="13_iira6"]
+[ext_resource type="Script" uid="uid://ddh4efv3aj0y8" path="res://Scripts/Behaviors/carnivore.gd" id="14_x58fq"]
+[ext_resource type="Script" uid="uid://q3u78uxx3cir" path="res://Scripts/waterableComponent.gd" id="15_r4ds1"]
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_r4ds1"]
 _data = {
@@ -179,7 +181,10 @@ graph_offset = Vector2(74, 30)
 radius = 0.21484375
 height = 0.7744291
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_iira6"]
+
 [node name="CharacterBody3D" type="CharacterBody3D" unique_id=1231883861 node_paths=PackedStringArray("visual_model", "fr_rc", "fl_rc", "br_rc", "bl_rc")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
 script = ExtResource("1_1jr48")
 WALK_SPEED = 3.0
 visual_model = NodePath("Fox")
@@ -495,5 +500,17 @@ parameters/conditions/walk = false
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1080556696]
 transform = Transform3D(3.9999757, 1.8474111e-12, -0.0139482375, -0.0139482375, 1.0530626e-09, -3.9999757, 1.8474111e-12, 4, 1.0530626e-09, 0.64079344, 1.4013684, 0.05495882)
 shape = SubResource("CapsuleShape3D_0styq")
+
+[node name="BehaviourController" type="Node" parent="." unique_id=1865820876]
+script = ExtResource("14_x58fq")
+
+[node name="Area3D" type="Area3D" parent="." unique_id=1190077361]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" unique_id=443169917]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.005552, 0)
+shape = SubResource("SphereShape3D_iira6")
+
+[node name="waterableComponent" type="Node3D" parent="." unique_id=575549833]
+script = ExtResource("15_r4ds1")
 
 [editable path="Fox"]

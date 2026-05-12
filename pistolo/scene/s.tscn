@@ -1,0 +1,307 @@
+[gd_scene format=3 uid="uid://cypu7wh0m5h6q"]
+
+[ext_resource type="PackedScene" uid="uid://2r76n8goin5r" path="res://Fox22.fbx" id="1_txqtt"]
+[ext_resource type="Script" uid="uid://c7554dwiw4quj" path="res://spider_bot/start_ik.gd" id="2_x205h"]
+[ext_resource type="Script" uid="uid://rutayrd4h8p4" path="res://spider_bot/head_ik_target.gd" id="3_8ckx7"]
+[ext_resource type="Script" uid="uid://bn0asqbr7ues7" path="res://spider_bot/coda_ik_target.gd" id="4_yrln1"]
+[ext_resource type="Script" uid="uid://cvppf16by64p3" path="res://spider_bot/ik_target.gd" id="5_hre1i"]
+[ext_resource type="Script" uid="uid://bbo16dywndl6r" path="res://spider_bot/StepTargetContainer.gd" id="6_1plsb"]
+[ext_resource type="Script" uid="uid://1g3w36rtmt44" path="res://spider_bot/step_ray.gd" id="7_17tf6"]
+
+[node name="CharacterBody3D" type="CharacterBody3D" unique_id=75691857]
+
+[node name="Fox22" parent="." unique_id=2042490896 instance=ExtResource("1_txqtt")]
+
+[node name="Skeleton3D" parent="Fox22/metarig_001" parent_id_path=PackedInt32Array(2042490896, 1862435570) index="0" unique_id=1081708941]
+bones/0/rotation = Quaternion(0.9513755, -0.17852454, -0.0010604439, -0.25102335)
+bones/1/position = Vector3(1.8219672e-11, -1.430992e-09, 7.7952156e-10)
+bones/1/rotation = Quaternion(0.9078237, -0.32607853, 0.054916542, 0.25790134)
+bones/1/scale = Vector3(0.99999994, 1, 1)
+bones/2/position = Vector3(-9.079746e-10, 0.0029595562, -3.7141942e-10)
+bones/2/rotation = Quaternion(-0.040387142, 0.023923414, -0.16233698, 0.98561823)
+bones/2/scale = Vector3(0.99999994, 1.0000001, 1)
+bones/3/position = Vector3(6.7681105e-10, 0.0059577064, 6.2066197e-10)
+bones/3/rotation = Quaternion(-0.006597655, 0.008298168, -0.003688569, 0.999937)
+bones/3/scale = Vector3(0.99999994, 0.9999999, 1)
+bones/4/position = Vector3(-7.747237e-11, 0.0060551036, 8.416116e-11)
+bones/4/rotation = Quaternion(0.00529318, -0.0244798, 0.0028065816, 0.99968237)
+bones/4/scale = Vector3(0.99999994, 1, 0.99999994)
+bones/6/position = Vector3(2.679306e-10, 0.0028775835, 1.9345827e-09)
+bones/6/rotation = Quaternion(-0.19504847, -0.0304594, -0.17415899, 0.9647264)
+bones/6/scale = Vector3(1, 1.0000001, 0.9999998)
+bones/7/position = Vector3(-8.3837765e-10, 0.0052171308, -1.8273661e-09)
+bones/7/rotation = Quaternion(-0.04868384, 0.00015222601, 0.0020528098, 0.99881214)
+bones/7/scale = Vector3(1, 0.99999994, 1.0000001)
+bones/8/position = Vector3(-9.50298e-11, 0.004409094, 9.283678e-10)
+bones/8/rotation = Quaternion(-0.07792547, 0.000389864, 0.00324338, 0.99695385)
+bones/8/scale = Vector3(0.9999998, 0.9999997, 0.9999998)
+bones/9/position = Vector3(-1.0220461e-11, 0.0038903938, -2.3376383e-09)
+bones/9/rotation = Quaternion(0.0006734992, 1.5741588e-08, -2.7768447e-05, 0.99999976)
+bones/9/scale = Vector3(1, 1.0000001, 1.0000001)
+bones/10/position = Vector3(1.5255827e-10, 0.007899206, 2.6326339e-09)
+bones/10/rotation = Quaternion(-0.06348612, 0.000246029, 0.0026018415, 0.99797934)
+bones/10/scale = Vector3(1.0000001, 1, 0.9999998)
+bones/11/position = Vector3(-1.3741576e-10, 0.0019489181, -9.646766e-10)
+bones/11/rotation = Quaternion(-0.00057978096, 1.6746515e-08, 2.3619838e-05, 0.9999998)
+bones/11/scale = Vector3(0.99999994, 0.9999998, 1)
+bones/12/position = Vector3(-1.0935954e-10, 0.0019495083, -7.872966e-10)
+bones/12/rotation = Quaternion(-0.09101657, 0.00046030333, 0.0036655008, 0.9958425)
+bones/12/scale = Vector3(1, 1, 0.9999997)
+bones/14/position = Vector3(0.0017164184, 0.004984901, -0.0016283296)
+bones/14/rotation = Quaternion(0.54282916, 0.20604396, -0.11884287, 0.8054556)
+bones/14/scale = Vector3(0.99999994, 0.99999994, 0.99999994)
+bones/15/position = Vector3(-0.0011745784, 0.0046046404, 0.0064341775)
+bones/15/rotation = Quaternion(0.21442832, -0.708352, 0.11099059, 0.663279)
+bones/15/scale = Vector3(1, 0.99999994, 0.99999994)
+bones/16/position = Vector3(-5.366455e-10, 0.006947051, 5.18116e-10)
+bones/16/rotation = Quaternion(-0.010043679, -0.031944036, -0.0958785, 0.99482965)
+bones/16/scale = Vector3(0.99999994, 1.0000001, 1.0000001)
+bones/17/position = Vector3(1.7638242e-09, 0.0063141095, -5.1968586e-11)
+bones/17/rotation = Quaternion(-0.0071860594, 0.01784337, 0.5030515, 0.86404234)
+bones/17/scale = Vector3(1, 1.0000001, 0.9999999)
+bones/19/position = Vector3(-0.0018446364, 0.004984901, -0.0014815062)
+bones/19/rotation = Quaternion(0.54833543, -0.18202128, 0.09008576, 0.81122196)
+bones/19/scale = Vector3(1.0000001, 0.9999999, 1.0000001)
+bones/20/position = Vector3(0.0013221157, 0.0046046423, 0.0064054886)
+bones/20/rotation = Quaternion(0.21192816, 0.70896506, -0.11569248, 0.66262376)
+bones/20/scale = Vector3(0.9999999, 1, 0.9999999)
+bones/21/position = Vector3(7.314762e-10, 0.0069470503, -5.925173e-10)
+bones/21/rotation = Quaternion(-0.009030104, 0.042453114, 0.0959793, 0.9944366)
+bones/21/scale = Vector3(1, 0.9999999, 1.0000001)
+bones/22/position = Vector3(-9.253541e-11, 0.0063141105, -6.541182e-10)
+bones/22/rotation = Quaternion(-0.007185525, -0.017842792, -0.5030515, 0.86404234)
+bones/22/scale = Vector3(1, 0.99999994, 0.9999998)
+bones/24/position = Vector3(0.0011481945, 0.0017250569, 0.0031707818)
+bones/24/rotation = Quaternion(0.3766425, 0.0074516935, -0.012494632, 0.92624444)
+bones/24/scale = Vector3(1, 1, 0.9999999)
+bones/26/position = Vector3(-0.00088327966, 0.001725057, 0.00325454)
+bones/26/rotation = Quaternion(0.3766425, 0.0074516814, -0.012494642, 0.92624444)
+bones/26/scale = Vector3(1, 1, 0.9999999)
+bones/28/position = Vector3(0.00020120278, -3.571638e-05, 0.004754484)
+bones/28/rotation = Quaternion(0.40494516, 0.7275021, -0.4190881, -0.36211228)
+bones/28/scale = Vector3(0.99999994, 0.99999976, 0.99999994)
+bones/30/position = Vector3(0.00020120278, -3.571638e-05, 0.004754484)
+bones/30/rotation = Quaternion(-0.427195, 0.7380471, -0.39638326, 0.3401047)
+bones/30/scale = Vector3(0.99999994, 1.0000001, 1)
+bones/32/position = Vector3(0.0018965481, -0.0013273197, -0.00037942786)
+bones/32/rotation = Quaternion(0.34710035, -0.0005928981, -0.09186911, 0.93331724)
+bones/32/scale = Vector3(1, 0.99999994, 1)
+bones/33/position = Vector3(-8.2269613e-10, 0.0057812696, -3.1307201e-09)
+bones/33/rotation = Quaternion(0.47778037, -0.44384038, -0.48303044, 0.58430576)
+bones/33/scale = Vector3(0.9999999, 0.9999997, 0.99999994)
+bones/34/position = Vector3(-1.2639793e-09, 0.010472258, -8.597535e-11)
+bones/34/rotation = Quaternion(0.018942315, -0.009667689, 0.50215065, 0.8645186)
+bones/34/scale = Vector3(1, 0.9999998, 1)
+bones/35/position = Vector3(-1.6093546e-09, 0.0063095363, -5.91628e-10)
+bones/35/rotation = Quaternion(-0.045462616, -0.036857657, 0.4315749, 0.9001765)
+bones/35/scale = Vector3(0.9999998, 0.9999999, 1)
+bones/37/position = Vector3(-0.0019218253, -0.0013273191, -0.00021783749)
+bones/37/rotation = Quaternion(0.3527689, 0.012915098, 0.06687882, 0.933228)
+bones/37/scale = Vector3(1, 1, 1.0000001)
+bones/38/position = Vector3(3.656785e-10, 0.0057812715, -2.5042368e-09)
+bones/38/rotation = Quaternion(0.49269232, 0.4593488, 0.46781066, 0.5721942)
+bones/38/scale = Vector3(0.99999994, 1, 1.0000002)
+bones/39/position = Vector3(-3.077597e-10, 0.010472255, 8.333038e-11)
+bones/39/rotation = Quaternion(0.017801087, 0.011632606, -0.5021925, 0.8644944)
+bones/39/scale = Vector3(1, 1, 0.9999998)
+bones/40/position = Vector3(6.887484e-10, 0.0063095377, 4.922527e-10)
+bones/40/rotation = Quaternion(-0.045462307, 0.03685804, -0.43157476, 0.9001766)
+bones/40/scale = Vector3(0.99999994, 0.9999998, 0.9999999)
+
+[node name="FrontLeftIK" type="SkeletonIK3D" parent="Fox22/metarig_001/Skeleton3D" index="1" unique_id=1575253692]
+process_priority = 1
+transform = Transform3D(0.030688416, -1.0587912e-22, 8.881784e-16, 0, -3.6583454e-09, -0.030688422, 0, 0.030688422, -3.6583456e-09, 0.005, -0.0013195014, 7.8648414e-11)
+root_bone = &"front_thigh.L"
+tip_bone = &"front_thigh.L.002_end"
+use_magnet = true
+magnet = Vector3(0, -1, 2)
+target_node = NodePath("../../../../FrontLeftIKTarget")
+script = ExtResource("2_x205h")
+
+[node name="FrontRightIK" type="SkeletonIK3D" parent="Fox22/metarig_001/Skeleton3D" index="2" unique_id=66222472]
+process_priority = 1
+transform = Transform3D(0.030603265, 0.00064766523, -0.0021908316, -0.0021548069, -0.0015937088, -0.030571165, -0.0007589655, 0.030640168, -0.0015438106, -0.0048849257, -0.008166617, -9.735368e-10)
+root_bone = &"front_thigh.R"
+tip_bone = &"front_thigh.R.002_end"
+use_magnet = true
+magnet = Vector3(0, -1, 2)
+target_node = NodePath("../../../../FrontRightIKTarget")
+script = ExtResource("2_x205h")
+
+[node name="BackLeftIK" type="SkeletonIK3D" parent="Fox22/metarig_001/Skeleton3D" index="3" unique_id=1568912773]
+process_priority = 1
+transform = Transform3D(0.030688407, 0, 0, 0, -3.658344e-09, -0.03068841, 0, 0.03068841, -3.658344e-09, 0.0030093305, 0.012136972, 1.4468398e-09)
+root_bone = &"shin.L"
+tip_bone = &"foot.L.002_end"
+use_magnet = true
+magnet = Vector3(0, 1, 1)
+target_node = NodePath("../../../../BackLeftIKTarget")
+script = ExtResource("2_x205h")
+
+[node name="BackRightIK" type="SkeletonIK3D" parent="Fox22/metarig_001/Skeleton3D" index="4" unique_id=429968011]
+process_priority = 1
+transform = Transform3D(0.030688412, 0, 0, 0, -3.6583447e-09, -0.030688414, 0, 0.030688414, -3.6583447e-09, -0.0035725296, 0.011425647, 1.3620431e-09)
+root_bone = &"shin.R"
+tip_bone = &"foot.R.002_end"
+use_magnet = true
+magnet = Vector3(0, 1, 1)
+target_node = NodePath("../../../../BackRightIKTarget")
+script = ExtResource("2_x205h")
+
+[node name="Coda" type="SkeletonIK3D" parent="Fox22/metarig_001/Skeleton3D" index="5" unique_id=46956993]
+root_bone = &"spine.002"
+tip_bone = &"spine_end"
+target_node = NodePath("../../../../CodaIKTarget")
+script = ExtResource("2_x205h")
+
+[node name="HeadIK" type="SkeletonIK3D" parent="Fox22/metarig_001/Skeleton3D" index="6" unique_id=873831561]
+transform = Transform3D(0.997211, 0.055670135, -0.049710758, -0.04404327, 0.97666043, 0.2102244, 0.06025376, -0.20744868, 0.9763885, 3.3883119e-09, -0.02243977, 0.020414313)
+root_bone = &"spine.010"
+tip_bone = &"spine.011_end"
+target_node = NodePath("../../../../HeadIKTarget")
+script = ExtResource("2_x205h")
+
+[node name="Tail" type="Marker3D" parent="Fox22" unique_id=1936474285]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2432075, 1.2638522)
+
+[node name="HeadIKTarget" type="Marker3D" parent="." unique_id=1687489469 node_paths=PackedStringArray("movement_controller")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9919841, -2.254187)
+script = ExtResource("3_8ckx7")
+movement_controller = NodePath("")
+head_height_normal = 2.0
+shake_width = 3.0
+
+[node name="CodaIKTarget" type="Marker3D" parent="." unique_id=1565078731 node_paths=PackedStringArray("root_target", "movement_controller")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.40790462, 1.0830817, 3.6733263)
+top_level = true
+script = ExtResource("4_yrln1")
+root_target = NodePath("")
+movement_controller = NodePath("")
+wag_amount = 3.0
+
+[node name="FrontLeftIKTarget" type="Marker3D" parent="." unique_id=518625820 node_paths=PackedStringArray("movement_controller", "step_target", "adjacent_target", "opposite_target", "piega_target", "estendi_target", "rayCast_target")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.55, -0.375)
+top_level = true
+script = ExtResource("5_hre1i")
+movement_controller = NodePath("")
+step_target = NodePath("")
+air_smoothness = 20.0
+adjacent_target = NodePath("")
+opposite_target = NodePath("")
+piega_target = NodePath("")
+estendi_target = NodePath("")
+rayCast_target = NodePath("")
+isFront = true
+
+[node name="FrontRightIKTarget" type="Marker3D" parent="." unique_id=1598924882 node_paths=PackedStringArray("movement_controller", "step_target", "adjacent_target", "opposite_target", "piega_target", "estendi_target", "rayCast_target")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0.55, -0.375)
+top_level = true
+script = ExtResource("5_hre1i")
+movement_controller = NodePath("")
+step_target = NodePath("")
+air_smoothness = 13.0
+adjacent_target = NodePath("")
+opposite_target = NodePath("")
+piega_target = NodePath("")
+estendi_target = NodePath("")
+rayCast_target = NodePath("")
+isFront = true
+
+[node name="BackLeftIKTarget" type="Marker3D" parent="." unique_id=603783488 node_paths=PackedStringArray("movement_controller", "step_target", "adjacent_target", "opposite_target", "piega_target", "estendi_target", "rayCast_target")]
+transform = Transform3D(0.9996783, 0.021221446, -0.013891084, -0.021252403, 0.99977195, -0.002084799, 0.013843676, 0.0023793387, 0.99990135, -0.3, 0.8989575, 1.0377011)
+top_level = true
+script = ExtResource("5_hre1i")
+movement_controller = NodePath("")
+step_target = NodePath("")
+adjacent_target = NodePath("")
+opposite_target = NodePath("")
+piega_target = NodePath("")
+estendi_target = NodePath("")
+rayCast_target = NodePath("")
+
+[node name="BackRightIKTarget" type="Marker3D" parent="." unique_id=1850502150 node_paths=PackedStringArray("movement_controller", "step_target", "adjacent_target", "opposite_target", "piega_target", "estendi_target", "rayCast_target")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.32248622, 0.6162119, 0.86525095)
+top_level = true
+script = ExtResource("5_hre1i")
+movement_controller = NodePath("")
+step_target = NodePath("")
+adjacent_target = NodePath("")
+opposite_target = NodePath("")
+piega_target = NodePath("")
+estendi_target = NodePath("")
+rayCast_target = NodePath("")
+
+[node name="StepTargetContainer" type="Node3D" parent="." unique_id=1540654133]
+script = ExtResource("6_1plsb")
+
+[node name="FrontLeftRay" type="RayCast3D" parent="StepTargetContainer" unique_id=439304016 node_paths=PackedStringArray("step_target", "IK_target")]
+transform = Transform3D(1.0000004, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000002, -0.3203958, 1.9777822, -0.8320305)
+visible = false
+target_position = Vector3(0, -100, 0)
+script = ExtResource("7_17tf6")
+step_target = NodePath("FrontLeftStepTarget")
+IK_target = NodePath("")
+
+[node name="FrontLeftStepTarget" type="Marker3D" parent="StepTargetContainer/FrontLeftRay" unique_id=1697376794]
+transform = Transform3D(1.0000002, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000002, 0, 0, 0)
+
+[node name="FrontRightRay" type="RayCast3D" parent="StepTargetContainer" unique_id=114429337 node_paths=PackedStringArray("step_target", "IK_target")]
+transform = Transform3D(1.0000004, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000002, 0.33654526, 1.8166628, -0.7572212)
+target_position = Vector3(0, -100, 0)
+debug_shape_thickness = 5
+script = ExtResource("7_17tf6")
+step_target = NodePath("FrontRightStepTarget")
+IK_target = NodePath("")
+
+[node name="FrontRightStepTarget" type="Marker3D" parent="StepTargetContainer/FrontRightRay" unique_id=1289345242]
+transform = Transform3D(1.0000002, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000002, 0, 0, 0)
+
+[node name="BackLeftRay" type="RayCast3D" parent="StepTargetContainer" unique_id=427121308 node_paths=PackedStringArray("step_target", "IK_target")]
+transform = Transform3D(1.0000004, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000002, -0.31386745, 2.1056857, 1.1525034)
+target_position = Vector3(0, -100, 0)
+script = ExtResource("7_17tf6")
+step_target = NodePath("BackLeftStepTarget")
+IK_target = NodePath("")
+
+[node name="BackLeftStepTarget" type="Marker3D" parent="StepTargetContainer/BackLeftRay" unique_id=91990753]
+transform = Transform3D(1.0000002, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000002, 0, 0, 0)
+
+[node name="BackRightRay" type="RayCast3D" parent="StepTargetContainer" unique_id=999941884 node_paths=PackedStringArray("step_target", "IK_target")]
+transform = Transform3D(1.0000004, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000002, 0.34958458, 1.799068, 1.182913)
+target_position = Vector3(0, -100, 0)
+script = ExtResource("7_17tf6")
+step_target = NodePath("BackRightStepTarget")
+IK_target = NodePath("")
+
+[node name="BackRightStepTarget" type="Marker3D" parent="StepTargetContainer/BackRightRay" unique_id=282988540]
+transform = Transform3D(1.0000002, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000002, 0, 0, 0)
+
+[node name="EstendiTarget" type="Node3D" parent="." unique_id=696267874]
+
+[node name="Estendi_FL" type="Marker3D" parent="EstendiTarget" unique_id=887024762]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 1.087, -2)
+
+[node name="Estendi_FR" type="Marker3D" parent="EstendiTarget" unique_id=1190029870]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 1, -2)
+
+[node name="Estendi_BL" type="Marker3D" parent="EstendiTarget" unique_id=1222166444]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.5, 2.5)
+
+[node name="Estendi_BR" type="Marker3D" parent="EstendiTarget" unique_id=838695923]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0.5, 2.5)
+
+[node name="PiegaTarget" type="Node3D" parent="." unique_id=1069975791]
+
+[node name="Piega_FL" type="Marker3D" parent="PiegaTarget" unique_id=1192583709]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.55, -0.375)
+
+[node name="Piega_FR" type="Marker3D" parent="PiegaTarget" unique_id=327023465]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35069293, 0.55, -0.375)
+
+[node name="Piega_BL" type="Marker3D" parent="PiegaTarget" unique_id=405801901]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.5, 0.5)
+
+[node name="Piega_BR" type="Marker3D" parent="PiegaTarget" unique_id=1579779753]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0.5, 0.5)
+
+[editable path="Fox22"]

@@ -1,0 +1,114 @@
+[gd_scene format=3 uid="uid://co6gndlc5g2p3"]
+
+[ext_resource type="PackedScene" uid="uid://dshlcsur5qf7f" path="res://terrain.tscn" id="1_0hol4"]
+[ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller.tscn" id="2_0e48y"]
+[ext_resource type="PackedScene" uid="uid://c1bw7jp018lgv" path="res://acqua_area.tscn" id="4_0hol4"]
+[ext_resource type="Script" uid="uid://q3u78uxx3cir" path="res://Scripts/waterableComponent.gd" id="4_d21ai"]
+[ext_resource type="PackedScene" uid="uid://cta2p5578g16e" path="res://v.tscn" id="5_q6r6c"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_0e48y"]
+sky_top_color = Color(0.24288344, 0.5737913, 0.8987245, 1)
+sky_horizon_color = Color(0.73, 0.613565, 0.48909998, 1)
+sky_curve = 0.10980643
+ground_bottom_color = Color(0.33047572, 0.5843128, 0.71622527, 1)
+sun_angle_max = 9.51
+sun_curve = 1.8
+
+[sub_resource type="Sky" id="Sky_epypp"]
+sky_material = SubResource("ProceduralSkyMaterial_0e48y")
+
+[sub_resource type="Environment" id="Environment_0hol4"]
+background_mode = 2
+sky = SubResource("Sky_epypp")
+ambient_light_color = Color(0.68929285, 0.39899072, 0.34501177, 1)
+ambient_light_sky_contribution = 0.73
+ambient_light_energy = 0.73
+tonemap_agx_white = 10.24
+ssr_enabled = true
+ssr_fade_in = 0.97470385
+ssr_fade_out = 0.8705507
+ssao_enabled = true
+ssil_enabled = true
+glow_enabled = true
+glow_normalized = true
+glow_bloom = 0.3
+fog_light_color = Color(0.288, 0.42293325, 0.64, 1)
+volumetric_fog_emission = Color(0.25415084, 0.45531315, 0.46524435, 1)
+adjustment_enabled = true
+adjustment_contrast = 1.25
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_0hol4"]
+dof_blur_far_distance = 84.37
+dof_blur_far_transition = 365.55
+dof_blur_amount = 0.15
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_0e48y"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_0e48y"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_0hol4"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_q6r6c"]
+
+[node name="root" type="Node3D" unique_id=60725401]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1745674113]
+environment = SubResource("Environment_0hol4")
+camera_attributes = SubResource("CameraAttributesPractical_0hol4")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment" unique_id=1980264218]
+transform = Transform3D(-0.8660254, -0.25000003, 0.43301278, 0, 0.8660254, 0.5, -0.50000006, 0.4330127, -0.75, -2.1129506, 23.319954, -6.3953753)
+light_color = Color(0.9164004, 0.702257, 0.6373864, 1)
+shadow_enabled = true
+shadow_normal_bias = 1.655
+shadow_blur = 2.897
+
+[node name="terrain_scene_instance" parent="." unique_id=93586366 instance=ExtResource("1_0hol4")]
+
+[node name="palo" type="MeshInstance3D" parent="." unique_id=466191686]
+transform = Transform3D(0.9659484, 0.18478349, 0.2560818, 0, 4.9487314, -0.14283623, -0.25873476, 0.68986213, 0.9560439, 0, 2.9587855, 0)
+mesh = SubResource("CylinderMesh_0e48y")
+
+[node name="RigidBody3D" type="RigidBody3D" parent="." unique_id=1805295802]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.1750965, 2.4710364)
+physics_material_override = SubResource("PhysicsMaterial_0e48y")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D" unique_id=1043403285]
+shape = SubResource("CapsuleShape3D_0hol4")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="RigidBody3D" unique_id=1916094624]
+mesh = SubResource("CapsuleMesh_q6r6c")
+
+[node name="waterableComponent" type="Node3D" parent="RigidBody3D" unique_id=85582982]
+script = ExtResource("4_d21ai")
+metadata/_custom_type_script = "uid://q3u78uxx3cir"
+
+[node name="ProtoController" parent="." unique_id=1810123114 instance=ExtResource("2_0e48y")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.0424342, 12.168699, 4.5223827)
+can_sprint = true
+can_freefly = true
+
+[node name="waterableComponent" type="Node3D" parent="ProtoController" unique_id=1828181006]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.667825, -3.9208016, -4.5223827)
+script = ExtResource("4_d21ai")
+metadata/_custom_type_script = "uid://q3u78uxx3cir"
+
+[node name="acquaArea" parent="." unique_id=1623203186 instance=ExtResource("4_0hol4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4339914, 0)
+
+[node name="CharacterBody3D" parent="." unique_id=1231883861 instance=ExtResource("5_q6r6c")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 31.126743, 24.080322, 15.420352)
+WALK_SPEED = null
+GALLOP_SPEED = null
+ACCELERATION = null
+FRICTION = null
+JUMP_VELOCITY = null
+ROTATION_SPEED = null
+is_low_health = null
+is_dead = null
+STAMINA_MAX = null
+STAMINA_DRAIN = null
+STAMINA_RECOVER = null
+ATTACK_COOLDOWN = null
+MAX_SLOPE_ANGLE = null
+SLOPE_TILT_SPEED = null

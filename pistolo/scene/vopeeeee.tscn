@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://cev8qqtudk0ne"]
+
+[ext_resource type="PackedScene" path="res://volpe.tscn" id="1_4getd"]
+[ext_resource type="Script" uid="uid://cfvm5ylrw0kqf" path="res://spider_bot/Movement.gd" id="1_qgsuw"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_4getd"]
+radius = 1.0566406
+height = 4.2182617
+
+[node name="CharacterBody3D" type="CharacterBody3D" unique_id=1237561969]
+wall_min_slide_angle = 0.0
+script = ExtResource("1_qgsuw")
+
+[node name="Node3D" parent="." unique_id=1841285964 instance=ExtResource("1_4getd")]
+script = null
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1120330499]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 1.6298234, 0)
+shape = SubResource("CapsuleShape3D_4getd")
+
+[editable path="Node3D"]
+[editable path="Node3D/Fox22"]
