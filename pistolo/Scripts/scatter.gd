@@ -16,7 +16,7 @@ func _find_mesh(node: Node) -> MeshInstance3D:
 
 
 func apply_scatter(vertices: PackedVector3Array, terrain_size: float, terrain_height: float) -> void:
-	# Raccoglie i vertici validi
+	
 	var candidates : PackedVector3Array = []
 	for v in vertices:
 		var dist := Vector2(v.x, v.z).length() / (terrain_size * 0.5)
@@ -24,7 +24,7 @@ func apply_scatter(vertices: PackedVector3Array, terrain_size: float, terrain_he
 		if hp >= hp_min and hp <= hp_max and dist <= dist_max:
 			candidates.append(v)
 
-	# Mesh albero: caricata dal .glb
+	# Mesh alber
 	var scene : PackedScene = preload("res://assets/tree1/Untitled.gltf")
 	var temp  : Node3D      = scene.instantiate()
 	
@@ -35,7 +35,7 @@ func apply_scatter(vertices: PackedVector3Array, terrain_size: float, terrain_he
 	remove_child(temp)
 	temp.queue_free()
 
-	# Piazza alberi rispettando la distanza minima
+
 	var tempArr := Array(candidates)
 	tempArr.shuffle()
 	candidates = PackedVector3Array(tempArr)
@@ -63,8 +63,8 @@ func apply_scatter(vertices: PackedVector3Array, terrain_size: float, terrain_he
 	for i in placed.size():
 		var t := Transform3D()
 		t = t.scaled(Vector3(randi_range(5.0, 8), randi_range(5.0, 8), randi_range(5.0, 8)))
-		t = t.translated(Vector3(0.0, 5.0, 0.0))
-		t.origin = placed[i] + Vector3(0, 1.5, 0)
+		t.origin = placed[i] 
+		t = t.translated(Vector3(0.0, 3, 0.0))
 		mm.set_instance_transform(i, t)
 
 	var mmi := MultiMeshInstance3D.new()
