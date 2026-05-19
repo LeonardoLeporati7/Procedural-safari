@@ -51,9 +51,24 @@ var current_slope_angle: float   = 0.0
 var slope_normal: Vector3        = Vector3.UP
 var _smooth_normal: Vector3      = Vector3.UP
 var _coyote_timer: float         = 0.0      # grazia prima di considerarsi "in aria"
+var _auto_jump_cooldown: float   = 0.0      # cooldown per il salto automatico
 
 @export_group("Salto")
 @export var COYOTE_TIME: float = 0.15       # secondi di tolleranza sui dislivelli
+
+@export_group("Auto-Jump")
+## Abilita il salto automatico quando in galoppo si incontra un ostacolo basso.
+@export var AUTO_JUMP_ENABLED: bool        = true
+## Anche al walk (non solo gallop). Default off — solo correndo.
+@export var AUTO_JUMP_ON_WALK: bool        = false
+## Distanza davanti all'animale alla quale "annusare" l'ostacolo.
+@export var AUTO_JUMP_RAY_FORWARD: float   = 1.0
+## Altezza dal suolo del raycast basso (piedi).
+@export var AUTO_JUMP_LOW_Y: float         = 0.15
+## Altezza massima ostacolo superabile con un salto.
+@export var AUTO_JUMP_HIGH_Y: float        = 1.2
+## Cooldown tra due salti automatici (sec) per evitare loop.
+@export var AUTO_JUMP_COOLDOWN: float      = 0.5
 
 @onready var anim_tree: AnimationTree = $AnimationTree
 
@@ -156,12 +171,22 @@ func _physics_process(delta: float) -> void:
 		velocity.x = move_toward(velocity.x, 0, FRICTION * delta)
 		velocity.z = move_toward(velocity.z, 0, FRICTION * delta)
 
-	# 13. SALTO
+	# 13. SALTO — scollegato dalla tastiera, ora è AUTOMATICO.
+	# L'animale salta da solo quando, mentre corre (o cammina se attivato),
+	# rileva davanti un ostacolo/dislivello superabile con un salto.
 	var is_jumping := false
-	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
-		if not is_attacking and not is_eating:
+	_auto_jump_cooldown = max(0.0, _auto_jump_cooldown - delta)
+
+	if AUTO_JUMP_ENABLED \
+			and is_on_floor() \
+			and not is_attacking and not is_eating \
+			and _auto_jump_cooldown <= 0.0 \
+			and direction.length() > 0.001 \
+			and (is_sprinting or AUTO_JUMP_ON_WALK):
+		if _detect_obstacle_ahead(direction):
 			velocity.y = JUMP_VELOCITY
 			is_jumping = true
+			_auto_jump_cooldown = AUTO_JUMP_COOLDOWN
 
 	# 14. FISICA
 	move_and_slide()
@@ -264,3 +289,38 @@ func _update_anim_conditions(is_moving: bool, is_sprinting: bool, is_jumping: bo
 			anim_tree[p + "walk"] = true
 	else:
 		anim_tree[p + "idle"] = true
+
+
+# ─── AUTO-JUMP: RILEVAMENTO OSTACOLO ─────────────────────────────────────────
+## Lancia due raycast davanti all'animale lungo la direzione di movimento:
+##   - uno basso (all'altezza dei piedi)
+##   - uno alto (all'altezza spalle/testa)
+## Se quello basso COLPISCE qualcosa ma quello alto NON colpisce → l'ostacolo
+## è abbastanza basso da poter essere superato con un salto → return true.
+## Se anche quello alto colpisce, è un muro: non saltare.
+func _detect_obstacle_ahead(move_dir: Vector3) -> bool:
+	var dir := Vector3(move_dir.x, 0.0, move_dir.z)
+	if dir.length_squared() < 0.001:
+		return false
+	dir = dir.normalized()
+
+	var space := get_world_3d().direct_space_state
+	var base  := global_position
+
+	# Raggio basso: parte dai piedi, va leggermente in avanti.
+	var low_origin := base + Vector3(0, AUTO_JUMP_LOW_Y, 0)
+	var low_target := low_origin + dir * AUTO_JUMP_RAY_FORWARD
+	var low_query  := PhysicsRayQueryParameters3D.create(low_origin, low_target)
+	low_query.exclude = [self]
+	var low_hit := space.intersect_ray(low_query)
+	if low_hit.is_empty():
+		return false   # niente davanti
+
+	# Raggio alto: stessa direzione ma all'altezza max ostacolo superabile.
+	var high_origin := base + Vector3(0, AUTO_JUMP_HIGH_Y, 0)
+	var high_target := high_origin + dir * AUTO_JUMP_RAY_FORWARD
+	var high_query  := PhysicsRayQueryParameters3D.create(high_origin, high_target)
+	high_query.exclude = [self]
+	var high_hit := space.intersect_ray(high_query)
+	# Se anche quello alto colpisce → muro/parete: NON saltare.
+	return high_hit.is_empty()

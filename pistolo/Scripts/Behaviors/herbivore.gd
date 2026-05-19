@@ -18,11 +18,22 @@ extends AnimalBase
 @export var drink_rate: float      = 30.0
 @export var attack_range: float    = 2.0    # distanza alla quale attacca la pianta (o raggiunge acqua)
 
+@export_group("Erbivoro/Ricerca")
+## Raggio entro cui scansionare globalmente per cibo/acqua quando i bisogni
+## sono critici (oltre la portata della DetectionArea). Simula olfatto/memoria.
+@export var search_radius: float        = 60.0
+## Ogni quanti secondi può ripetere la scansione globale (evita stress CPU).
+@export var search_cooldown_sec: float  = 2.0
+
 # Liste aggiornate dal rilevamento
 var _food_sources: Array[Node3D]   = []   # piante/erba rilevate
 var _water_sources: Array[Node3D]  = []   # punti acqua rilevati
 var _predators_near: Array[Node3D] = []   # minacce rilevate
 var _mates_near: Array[Node3D]     = []   # potenziali partner
+
+# Timer scansioni globali (ms)
+var _last_food_scan_ms: int  = -100000
+var _last_water_scan_ms: int = -100000
 
 # ─────────────────────────────────────────────────────────────────────────────
 func _on_ready() -> void:
@@ -34,6 +45,13 @@ func _on_ready() -> void:
 ## Aggiunge la priorità HUNTING con una penalità per gli erbivori (non cacciano).
 func _compute_priorities() -> Dictionary:
 	var p = super._compute_priorities()
+
+	# Se ha fame/sete e non ha fonti in vista, fai una scansione globale
+	# (simula olfatto/memoria — trova la pianta o pozza d'acqua più vicina).
+	if needs["hunger"].urgency() > seek_food_threshold and _food_sources.is_empty():
+		_global_scan_into(_food_sources, "food", _last_food_scan_ms)
+	if needs["thirst"].urgency() > seek_water_threshold and _water_sources.is_empty():
+		_global_scan_into(_water_sources, "water", _last_water_scan_ms)
 
 	# Gli erbivori non hanno mai SEEKING_FOOD → cibo = piante vicine
 	p.erase(State.SEEKING_FOOD)
@@ -137,8 +155,11 @@ func _on_body_detected(other: Node3D) -> void:
 		return
 
 	# Potenziale partner: stesso tipo, sesso opposto
+	if ctrl:
+		print(ctrl.get_class())
 	if ctrl is Herbivore and ctrl._is_female != _is_female:
 		_mates_near.append(other)
+		print("mate")
 
 func _on_body_lost(other: Node3D) -> void:
 	super._on_body_lost(other)
@@ -147,3 +168,37 @@ func _on_body_lost(other: Node3D) -> void:
 	_predators_near.erase(other)
 	_mates_near.erase(other)
 	remove_threat(other)
+
+# ─── SCANSIONE GLOBALE (olfatto/memoria) ─────────────────────────────────────
+## Cerca nei nodi del gruppo `group_name` il più vicino entro `search_radius`
+## e lo aggiunge a `list`. Usa un cooldown (in ms) per non scandire ogni frame.
+## `last_scan_ms_ref` non viene passato per riferimento (GDScript non lo permette
+## sui primitivi): la funzione legge/scrive direttamente nelle variabili membro
+## attraverso `group_name` ("food" o "water").
+func _global_scan_into(list: Array[Node3D], group_name: String, _unused: int) -> void:
+	var now: int = Time.get_ticks_msec()
+	var last_ms: int
+	if group_name == "food":
+		last_ms = _last_food_scan_ms
+	else:
+		last_ms = _last_water_scan_ms
+
+	if now - last_ms < int(search_cooldown_sec * 1000.0):
+		return
+
+	if group_name == "food":
+		_last_food_scan_ms = now
+	else:
+		_last_water_scan_ms = now
+
+	var best: Node3D = null
+	var best_d2: float = search_radius * search_radius
+	for n in get_tree().get_nodes_in_group(group_name):
+		if not (n is Node3D) or not n.is_inside_tree():
+			continue
+		var d2: float = body.global_position.distance_squared_to(n.global_position)
+		if d2 < best_d2:
+			best_d2 = d2
+			best = n
+	if best and not list.has(best):
+		list.append(best)

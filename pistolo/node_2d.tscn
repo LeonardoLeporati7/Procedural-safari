@@ -4,9 +4,9 @@
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller.tscn" id="2_0e48y"]
 [ext_resource type="PackedScene" uid="uid://c1bw7jp018lgv" path="res://acqua_area.tscn" id="4_0hol4"]
 [ext_resource type="Script" uid="uid://q3u78uxx3cir" path="res://scripts/waterableComponent.gd" id="4_d21ai"]
-[ext_resource type="PackedScene" uid="uid://cta2p5578g16e" path="res://v.tscn" id="5_q6r6c"]
 [ext_resource type="PackedScene" uid="uid://bv3d0xnbyp67a" path="res://Deer.tscn" id="6_kdubu"]
 [ext_resource type="Script" uid="uid://dsrko5y7ssjnf" path="res://ecosystem_manager.gd" id="7_d21ai"]
+[ext_resource type="PackedScene" uid="uid://cta2p5578g16e" path="res://v.tscn" id="7_rj586"]
 [ext_resource type="Script" uid="uid://cv3imj06ewdd1" path="res://scripts/animal_tooltip.gd" id="8_rj586"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_0e48y"]
@@ -100,13 +100,6 @@ metadata/_custom_type_script = "uid://q3u78uxx3cir"
 [node name="acquaArea" parent="." unique_id=1623203186 instance=ExtResource("4_0hol4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4339914, 0)
 
-[node name="wolpe" parent="." unique_id=1231883861 instance=ExtResource("5_q6r6c")]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 77.009674, 609.9594, -44.829163)
-
-[node name="waterableComponent2" type="Node3D" parent="wolpe" unique_id=2075125569]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -23.198425)
-script = ExtResource("4_d21ai")
-
 [node name="CharacterBody3D" parent="." unique_id=381890926 instance=ExtResource("6_kdubu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 165.84947, 595.1454, -21.155762)
 
@@ -114,13 +107,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 165.84947, 595.1454, -21.1557
 script = ExtResource("7_d21ai")
 terrain = NodePath("../terrain_scene_instance/Terrain")
 deer_scene = ExtResource("6_kdubu")
-fox_scene = ExtResource("5_q6r6c")
-deer_count = 10
+fox_scene = ExtResource("7_rj586")
+deer_count = 50
 fox_count = 10
 
-[node name="AnimalTooltip" type="CanvasLayer" parent="." unique_id=1413813388 node_paths=PackedStringArray("camera")]
+[node name="AnimalTooltip" type="CanvasLayer" parent="." unique_id=1413813388]
 script = ExtResource("8_rj586")
-camera = NodePath("../ProtoController/Head/Camera3D")
 
 [editable path="terrain_scene_instance"]
 [editable path="ProtoController"]

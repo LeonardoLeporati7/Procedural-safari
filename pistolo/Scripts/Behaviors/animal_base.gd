@@ -263,11 +263,13 @@ func _tick_current_state(delta: float) -> void:
 # ─── STATI: IMPLEMENTAZIONI BASE ─────────────────────────────────────────────
 
 func _tick_idle(delta: float) -> void:
+	print("idle")
 	_wander_timer -= delta
 	if _wander_timer <= 0.0:
 		_decide_next_wander()
 
 func _tick_wander(delta: float) -> void:
+
 	_wander_timer -= delta
 	_move_in_direction(_wander_dir, move_speed, delta)
 	if _wander_timer <= 0.0:
@@ -275,15 +277,18 @@ func _tick_wander(delta: float) -> void:
 
 ## Override nelle sottoclassi: vai verso il cibo/preda rilevata
 func _tick_seek_food(_delta: float) -> void:
+	print("seeking food")
 	if not _focus_target or not is_instance_valid(_focus_target):
 		_ensure_state(State.WANDERING)
 
 ## Override nelle sottoclassi: logica di mangiare
 func _tick_eating(_delta: float) -> void:
+	print("eating")
 	pass
 
 ## Override nelle sottoclassi: vai verso l'acqua
 func _tick_seek_water(_delta: float) -> void:
+	print("seeking water")
 	if not _focus_target or not is_instance_valid(_focus_target):
 		_ensure_state(State.WANDERING)
 
@@ -298,6 +303,7 @@ func _tick_sleeping(delta: float) -> void:
 		_ensure_state(State.IDLE)
 
 func _tick_fleeing(delta: float) -> void:
+	print("fleeing")
 	_flee_targets = _flee_targets.filter(
 		func(t): return is_instance_valid(t) and t.is_inside_tree()
 	)
@@ -318,6 +324,7 @@ func _tick_seek_mate(_delta: float) -> void:
 		_ensure_state(State.WANDERING)
 
 func _tick_mating(delta: float) -> void:
+	print("mating")
 	# Durata fissa 2 secondi, poi passa a gestazione (femmine) o idle (maschi)
 	_sleep_timer -= delta   # riuso come timer generico
 	if _sleep_timer <= 0.0:
@@ -456,10 +463,22 @@ func remove_threat(threat: Node3D) -> void:
 func _connect_detection_area() -> void:
 	var area := body.get_node_or_null("DetectionArea") as Area3D
 	if area:
+		# Body (StaticBody3D, CharacterBody3D, RigidBody3D, ecc.)
 		area.body_entered.connect(_on_body_detected)
 		area.body_exited.connect(_on_body_lost)
+		# Aree (es. zone d'acqua o cibo modellate come Area3D)
+		area.area_entered.connect(_on_area_detected)
+		area.area_exited.connect(_on_area_lost)
 	else:
 		push_warning(name + ": nessun nodo 'DetectionArea' nel body — il rilevamento non funzionerà.")
+
+## Quando un'Area3D entra nella DetectionArea, la trattiamo come se fosse un
+## body (cibo, acqua, ecc.). Le sottoclassi possono override.
+func _on_area_detected(other: Area3D) -> void:
+	_on_body_detected(other)
+
+func _on_area_lost(other: Area3D) -> void:
+	_on_body_lost(other)
 
 func _ensure_state(new_state: State) -> void:
 	if new_state == current_state: return
@@ -485,3 +504,56 @@ func get_health_ratio() -> float:
 
 func get_need_urgency(need_name: String) -> float:
 	return needs[need_name].urgency() if needs.has(need_name) else 0.0
+
+## Restituisce true se l'animale è femmina (settato a random in _ready).
+func is_female() -> bool:
+	return _is_female
+
+## Quanti body fisici sono attualmente dentro la DetectionArea (tutti, senza
+## filtri per tipo). Utile per il debug del rilevamento.
+func get_detected_count() -> int:
+	if not body: return 0
+	var area := body.get_node_or_null("DetectionArea") as Area3D
+	if not area: return 0
+	# Esclude se stessi nel conteggio
+	var bodies := area.get_overlapping_bodies()
+	var count := 0
+	for b in bodies:
+		if b != body:
+			count += 1
+	return count
+
+## Quanti animali sono attualmente nella lista delle minacce attive (fuga).
+func get_threats_count() -> int:
+	return _flee_targets.size()
+
+## Trova il BehaviorController di un altro body, in modo ROBUSTO:
+##  1) cerca il figlio chiamato "BehaviorController" (nome standard)
+##  2) se non lo trova, cerca tra i figli quello che ha uno script che estende
+##     AnimalBase (funziona qualunque sia il nome del nodo).
+## Restituisce null se il body non è un animale.
+static func find_animal_ctrl(b: Node) -> AnimalBase:
+	if b == null: return null
+	var ctrl := b.get_node_or_null("BehaviorController") as AnimalBase
+	if ctrl: return ctrl
+	for child in b.get_children():
+		if child is AnimalBase:
+			return child as AnimalBase
+	return null
+
+## Restituisce un'etichetta leggibile dello stato corrente (in italiano).
+func get_state_label() -> String:
+	match current_state:
+		State.IDLE:          return "Riposa"
+		State.WANDERING:     return "Vagando"
+		State.SEEKING_FOOD:  return "Cerca cibo"
+		State.EATING:        return "Mangia"
+		State.SEEKING_WATER: return "Cerca acqua"
+		State.DRINKING:      return "Beve"
+		State.SLEEPING:      return "Dorme"
+		State.FLEEING:       return "In fuga"
+		State.SEEKING_MATE:  return "Cerca partner"
+		State.MATING:        return "Accoppiamento"
+		State.GESTATING:     return "Gestazione"
+		State.DEAD:          return "Morto"
+	return "?"

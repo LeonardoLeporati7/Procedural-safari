@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cta2p5578g16e"]
 
-[ext_resource type="Script" uid="uid://diuq2bh0xbst3" path="res://move.gd" id="1_1jr48"]
+[ext_resource type="Script" uid="uid://diuq2bh0xbst3" path="res://move.gd" id="1_arg7f"]
 [ext_resource type="PackedScene" uid="uid://cl4l1t6rhj08s" path="res://assets/Fox.fbx" id="1_jd4w4"]
 [ext_resource type="Animation" uid="uid://byhnsmodqckpc" path="res://Animazione/Attack.anim" id="3_0styq"]
 [ext_resource type="Script" uid="uid://dvmf60vpiaut6" path="res://start_ik.gd" id="3_hyw6d"]
@@ -183,15 +183,12 @@ height = 0.7744291
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_iira6"]
 
-[node name="CharacterBody3D" type="CharacterBody3D" unique_id=1231883861 node_paths=PackedStringArray("visual_model", "fr_rc", "fl_rc", "br_rc", "bl_rc")]
+[sub_resource type="SphereShape3D" id="SphereShape3D_arg7f"]
+radius = 5.0
+
+[node name="CharacterBody3D" type="CharacterBody3D" unique_id=1231883861]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
-script = ExtResource("1_1jr48")
-WALK_SPEED = 3.0
-visual_model = NodePath("Fox")
-fr_rc = NodePath("Fox/RayCast/FR_rc")
-fl_rc = NodePath("Fox/RayCast/FL_rc")
-br_rc = NodePath("Fox/RayCast/BR_rc")
-bl_rc = NodePath("Fox/RayCast/BL_rc")
+script = ExtResource("1_arg7f")
 
 [node name="Fox" parent="." unique_id=24076908 instance=ExtResource("1_jd4w4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6015028, 0, -0.03336668)
@@ -501,7 +498,7 @@ parameters/conditions/walk = false
 transform = Transform3D(3.9999757, 1.8474111e-12, -0.0139482375, -0.0139482375, 1.0530626e-09, -3.9999757, 1.8474111e-12, 4, 1.0530626e-09, 0.64079344, 1.4013684, 0.05495882)
 shape = SubResource("CapsuleShape3D_0styq")
 
-[node name="BehaviourController" type="Node" parent="." unique_id=1865820876]
+[node name="BehaviorController" type="Node" parent="." unique_id=1865820876]
 script = ExtResource("14_x58fq")
 
 [node name="Area3D" type="Area3D" parent="." unique_id=1190077361]
@@ -512,5 +509,11 @@ shape = SubResource("SphereShape3D_iira6")
 
 [node name="waterableComponent" type="Node3D" parent="." unique_id=575549833]
 script = ExtResource("15_r4ds1")
+
+[node name="DetectionArea" type="Area3D" parent="." unique_id=596700935]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea" unique_id=1830196655]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, 0, 0, 0)
+shape = SubResource("SphereShape3D_arg7f")
 
 [editable path="Fox"]
