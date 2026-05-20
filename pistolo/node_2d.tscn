@@ -4,6 +4,8 @@
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller.tscn" id="2_0e48y"]
 [ext_resource type="PackedScene" uid="uid://c1bw7jp018lgv" path="res://acqua_area.tscn" id="4_0hol4"]
 [ext_resource type="Script" uid="uid://q3u78uxx3cir" path="res://Scripts/waterableComponent.gd" id="4_d21ai"]
+[ext_resource type="VoxelGIData" uid="uid://c4v6qej42o47x" path="res://main_scene.VoxelGI_data.res" id="5_q6r6c"]
+[ext_resource type="Script" uid="uid://co7hw7sexapeq" path="res://voxel_light.gd" id="6_kdubu"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_0e48y"]
 sky_top_color = Color(0.24288344, 0.5737913, 0.8987245, 1)
@@ -95,3 +97,11 @@ metadata/_custom_type_script = "uid://q3u78uxx3cir"
 
 [node name="acquaArea" parent="." unique_id=1623203186 instance=ExtResource("4_0hol4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4339914, 0)
+
+[node name="VoxelGI" type="VoxelGI" parent="." unique_id=1961323561]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.3936768, 62.564697, -9.522583)
+visible = false
+subdiv = 3
+size = Vector3(617.75415, 145.1294, 630.17505)
+data = ExtResource("5_q6r6c")
+script = ExtResource("6_kdubu")

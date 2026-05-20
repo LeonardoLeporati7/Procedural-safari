@@ -74,7 +74,7 @@ func generate_terrain() -> void:
 			colors[i] = Color(0.98, 0.91, 0.60)   # sabbia
 		elif hp < 0.60:
 			colors[i] = Color(0.35, randf_range(0.70, 0.76), 0.22)   # prato
-		elif hp < 0.9:
+		elif hp < 0.95:
 			colors[i] = Color(0.52, 0.40, 0.22)   # roccia
 		else:
 			colors[i] = Color(1.00, 1.00, 1.00)   # neve
