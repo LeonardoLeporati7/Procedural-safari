@@ -25,7 +25,7 @@ func apply_scatter(vertices: PackedVector3Array, terrain_size: float, terrain_he
 			candidates.append(v)
 
 	# Mesh alber
-	var scene : PackedScene = preload("res://assets/tree1/Untitled.gltf")
+	var scene : PackedScene = preload("res://assets/alber2.blend")
 	var temp  : Node3D      = scene.instantiate()
 	
 	add_child(temp)
@@ -46,13 +46,7 @@ func apply_scatter(vertices: PackedVector3Array, terrain_size: float, terrain_he
 	for v in candidates:
 		if placed.size() >= tree_count:
 			break
-		var too_close := false
-		for p in placed:
-			if Vector2(v.x, v.z).distance_squared_to(Vector2(p.x, p.z)) < min_dist2:
-				too_close = true
-				break
-		if not too_close:
-			placed.append(v)
+		placed.append(v)
 
 	# MultiMesh
 	var mm := MultiMesh.new()
@@ -62,10 +56,13 @@ func apply_scatter(vertices: PackedVector3Array, terrain_size: float, terrain_he
 
 	for i in placed.size():
 		var t := Transform3D()
-		t = t.scaled(Vector3(randi_range(5.0, 8), randi_range(5.0, 8), randi_range(5.0, 8)))
-		t.origin = placed[i] 
+		#t = t.scaled(Vector3(randi_range(5.0, 8), randi_range(5.0, 8), randi_range(5.0, 8)))
+		t.origin = placed[i]
+		t.basis = t.basis.rotated(Vector3.RIGHT, deg_to_rad(-90))
+		t = t.scaled(Vector3(0.8, 0.8, 0.8))
 		t = t.translated(Vector3(0.0, 3, 0.0))
 		mm.set_instance_transform(i, t)
+
 
 	var mmi := MultiMeshInstance3D.new()
 	mmi.multimesh = mm
