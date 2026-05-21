@@ -1,6 +1,5 @@
 extends Node3D
 
-@export var tree_count  : int   = 2000
 @export var hp_min      : float = 0.10
 @export var hp_max      : float = 0.55
 @export var dist_max    : float = 0.78   # non oltre questo raggio (0=centro, 1=bordo)
@@ -15,7 +14,7 @@ func _find_mesh(node: Node) -> MeshInstance3D:
 	return null
 
 
-func apply_scatter(vertices: PackedVector3Array, terrain_size: float, terrain_height: float) -> void:
+func apply_scatter(vertices: PackedVector3Array, terrain_size: float, terrain_height: float, model: String, translation_info: Vector3, need_scale: bool, tree_count: int) -> void:
 	# Raccoglie i vertici validi
 	var candidates : PackedVector3Array = []
 	for v in vertices:
@@ -25,7 +24,7 @@ func apply_scatter(vertices: PackedVector3Array, terrain_size: float, terrain_he
 			candidates.append(v)
 
 	# Mesh albero: caricata dal .glb
-	var scene : PackedScene = preload("res://assets/alber2.blend")
+	var scene : PackedScene = load(model)
 	var temp  : Node3D      = scene.instantiate()
 	
 	add_child(temp)
@@ -62,10 +61,11 @@ func apply_scatter(vertices: PackedVector3Array, terrain_size: float, terrain_he
 
 	for i in placed.size():
 		var t := Transform3D()
-		#t = t.scaled(Vector3(randi_range(5.0, 8), randi_range(5.0, 8), randi_range(5.0, 8)))
-		
+		if need_scale:
+			t = t.scaled(Vector3(randi_range(5.0, 8), randi_range(5.0, 8), randi_range(5.0, 8)))
+		 
 		t.origin = placed[i] + Vector3(0, 1.5, 0)
-		t = t.translated(Vector3(0.0, 1.0, 0.0))
+		t = t.translated(translation_info)
 		mm.set_instance_transform(i, t)
 
 	var mmi := MultiMeshInstance3D.new()

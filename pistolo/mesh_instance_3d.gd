@@ -47,6 +47,31 @@ func get_height(x: float, z: float) -> float:
 	return macro + (mask * mountain) + detail
 
 
+func zone_ring(vertices: PackedVector3Array, dist_min: float, dist_max: float) -> PackedVector3Array:
+	var out : PackedVector3Array = []
+	for v in vertices:
+		var d := Vector2(v.x, v.z).length() / (size * 0.5)
+		if d >= dist_min and d <= dist_max:
+			out.append(v)
+	return out
+
+
+func zone_circle_normalized(vertices: PackedVector3Array, center_pct: Vector2, radius_pct: float) -> PackedVector3Array:
+	var out : PackedVector3Array = []
+	
+	# Convertiamo il centro e il raggio da percentuale a metri reali dell'isola
+	var half_size := size * 0.5
+	var real_center := center_pct * half_size
+	var real_radius := radius_pct * half_size
+	
+	for v in vertices:
+		# Calcoliamo la distanza in metri reali tra il vertice (X,Z) e il centro reale
+		var distance := Vector2(v.x, v.z).distance_to(real_center)
+		if distance <= real_radius:
+			out.append(v)
+	return out
+
+
 func generate_terrain() -> void:
 	var plane := PlaneMesh.new()
 	plane.size             = Vector2(size, size)
@@ -74,7 +99,7 @@ func generate_terrain() -> void:
 			colors[i] = Color(0.98, 0.91, 0.60)   # sabbia
 		elif hp < 0.60:
 			colors[i] = Color(0.35, randf_range(0.70, 0.76), 0.22)   # prato
-		elif hp < 0.95:
+		elif hp < 0.99:
 			colors[i] = Color(0.52, 0.40, 0.22)   # roccia
 		else:
 			colors[i] = Color(1.00, 1.00, 1.00)   # neve
@@ -99,8 +124,11 @@ func generate_terrain() -> void:
 	# Passa i vertici finali allo scatter per il posizionamento dei props.
 	# Il nodo "Scatter" deve essere fratello di questo MeshInstance3D nella scena.
 	var scatter = get_node_or_null("../Scatter")
+	
 	if scatter and scatter.has_method("apply_scatter"):
 		
-		scatter.apply_scatter(vertices, size, height)
+		scatter.apply_scatter(zone_circle_normalized(vertices, Vector2(0.7, -0.4), 0.2), size, height, "res://assets/alber2.blend", Vector3(0.0, 1.0, 0.0), false, 500)
+		scatter.apply_scatter(vertices, size, height, "res://assets/tree1/Untitled.gltf", Vector3(0,1,0), true, 500)
+		
 	else:
 		push_warning("Terrain: nodo 'Scatter' non trovato o manca il metodo apply_scatter().")
