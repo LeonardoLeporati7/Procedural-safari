@@ -62,7 +62,7 @@ func apply_scatter(vertices: PackedVector3Array, terrain_size: float, terrain_he
 	for i in placed.size():
 		var t := Transform3D()
 		if need_scale:
-			t = t.scaled(Vector3(randi_range(5.0, 8), randi_range(5.0, 8), randi_range(5.0, 8)))
+			t = t.scaled(Vector3(randi_range(5.0, 6), randi_range(5.0, 6), randi_range(5.0, 6)))
 		 
 		t.origin = placed[i] + Vector3(0, 1.5, 0)
 		t = t.translated(translation_info)

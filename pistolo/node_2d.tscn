@@ -87,6 +87,7 @@ metadata/_custom_type_script = "uid://q3u78uxx3cir"
 
 [node name="ProtoController" parent="." unique_id=1810123114 instance=ExtResource("2_0e48y")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.0424342, 12.168699, 4.5223827)
+visible = false
 can_sprint = true
 can_freefly = true
 
