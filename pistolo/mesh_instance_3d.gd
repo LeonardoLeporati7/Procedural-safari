@@ -133,9 +133,7 @@ func generate_terrain() -> void:
 		scatter.apply_scatter(zone_circle_normalized(vertices, Vector2(-0.2, 0.2), 0.4), size, height, "res://assets/alber2.blend", Vector3(0.0, 1.0, 0.0), false,0, false, 500)
 		scatter.apply_scatter(vertices, size, height,"res://assets/sassi1.glb" , Vector3(0,-1.6,0), false, 0.5,  false, 2000)
 		scatter.apply_scatter(vertices, size, height, "res://assets/frag1.glb", Vector3(0,-2,0), true, 0.25,  false, 500)
-		
 		scatter.apply_scatter(zone_circle_normalized(vertices, Vector2(-0.5, -0.3), 0.4), size, height, "res://assets/tree1/Untitled.gltf", Vector3(0,0,0), true, 4, false, 500)
-		
 		scatter.apply_scatter(zone_circle_normalized(vertices, Vector2(-0.2, 0.3), 0.4), size, height, "res://assets/tree1/Untitled.gltf", Vector3(0,0,0), true, 4, false, 500)
 		
 		

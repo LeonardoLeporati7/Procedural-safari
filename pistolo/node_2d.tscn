@@ -69,10 +69,13 @@ shadow_blur = 2.897
 
 [node name="palo" type="MeshInstance3D" parent="." unique_id=466191686]
 transform = Transform3D(0.9659484, 0.18478349, 0.2560818, 0, 4.9487314, -0.14283623, -0.25873476, 0.68986213, 0.9560439, 0, 2.9587855, 0)
+visible = false
 mesh = SubResource("CylinderMesh_0e48y")
 
 [node name="RigidBody3D" type="RigidBody3D" parent="." unique_id=1805295802]
+process_mode = 4
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.1750965, 2.4710364)
+visible = false
 physics_material_override = SubResource("PhysicsMaterial_0e48y")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D" unique_id=1043403285]
