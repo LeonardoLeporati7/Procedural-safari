@@ -50,7 +50,7 @@ func get_height(x: float, z: float) -> float:
 
 func generate_terrain() -> void:
 	var plane := PlaneMesh.new()
-	plane.size           = Vector2(size, size)
+	plane.size             = Vector2(size, size)
 	plane.subdivide_width  = resolution
 	plane.subdivide_depth  = resolution
 
@@ -74,7 +74,7 @@ func generate_terrain() -> void:
 		if hp < 0.10:
 			colors[i] = Color(0.98, 0.91, 0.60)   # sabbia
 		elif hp < 0.60:
-			colors[i] = Color(0.35,randf_range(0.70, 0.76), 0.22)   # prato Color(randf_range(0.300, 0.325), randf_range(0.5, 0.55), randf_range(0.20, 0.25), 1.0)
+			colors[i] = Color(0.35, randf_range(0.70, 0.76), 0.22)   # prato
 		elif hp < 0.9:
 			colors[i] = Color(0.52, 0.40, 0.22)   # roccia
 		else:
@@ -95,3 +95,13 @@ func generate_terrain() -> void:
 
 	collision_shape.shape = mesh.create_trimesh_shape()
 	self.mesh = mesh
+
+	# ── SCATTER ───────────────────────────────────────────────────────────────
+	# Passa i vertici finali allo scatter per il posizionamento dei props.
+	# Il nodo "Scatter" deve essere fratello di questo MeshInstance3D nella scena.
+	var scatter = get_node_or_null("../Scatter")
+	if scatter and scatter.has_method("apply_scatter"):
+		
+		scatter.apply_scatter(vertices, size, height)
+	else:
+		push_warning("Terrain: nodo 'Scatter' non trovato o manca il metodo apply_scatter().")

@@ -93,11 +93,41 @@ class Need:
 @export var sleep_threshold: float       = 0.70  # energia troppo bassa → dorme
 @export var seek_mate_threshold: float   = 0.60  # impulso riproduttivo alto → cerca mate
 
+@export_group("Danno da inedia/disidratazione")
+## Sopra questa urgenza, fame o sete iniziano a togliere vita.
+@export var starvation_urgency_threshold: float = 0.95
+## HP/sec persi quando la fame è al massimo (urgency >= soglia).
+@export var hunger_damage_per_sec: float = 2.0
+## HP/sec persi quando la sete è al massimo. La disidratazione uccide più
+## velocemente della fame (realismo biologico).
+@export var thirst_damage_per_sec: float = 3.0
+
 @export_group("Riproduzione")
 @export var gestation_time: float    = 10.0  # secondi (scala con il tuo tempo di gioco)
 @export var offspring_count_min: int = 1
 @export var offspring_count_max: int = 3
 @export var min_health_to_reproduce: float = 0.4  # almeno 40% HP per riprodursi
+## Scena da istanziare per ogni figlio (es. la .tscn del Deer/Fox).
+## Se null, _give_birth() emette solo il segnale `reproduced` ma non spawna.
+@export var offspring_scene: PackedScene
+## Raggio (m) entro cui spawnare i cuccioli attorno alla madre.
+@export var offspring_spawn_radius: float = 2.0
+## Limite globale di animali di questa specie nella scena. Se superato, la
+## madre completa la gestazione ma non nasce nessuno (evita esplosioni di
+## popolazione). 0 = nessun limite.
+@export var max_population: int = 30
+## Cuccioli partono con questa frazione di max_health (es. 0.6 = 60%) così
+## non sono "fragili" ma neanche pienamente adulti.
+@export var offspring_starting_health_ratio: float = 0.8
+
+@export_group("Cadavere")
+## Secondi che la carcassa resta nella scena dopo la morte prima di sparire.
+## Durante questo tempo è marcata come `carrion` (i carnivori la possono
+## mangiare in futuro). Metti a 0 per non rimuoverla mai.
+@export var corpse_duration_sec: float = 60.0
+## Se ON, dopo la morte la CollisionShape3D del body viene disabilitata così
+## gli altri animali possono camminarci sopra senza bloccarsi.
+@export var disable_collision_on_death: bool = true
 
 @export_group("Wander")
 @export var wander_interval_min: float = 2.0
@@ -126,11 +156,33 @@ var _gestation_timer: float = 0.0
 var _sleep_timer: float     = 0.0
 var _is_female: bool        = true   # randomizzato in _ready o settabile dall'Inspector
 
+# ─── HYSTERESIS FLEEING ──────────────────────────────────────────────────────
+## Tempo (ms) entro cui lo stato FLEEING viene forzato anche se _flee_targets è
+## momentaneamente vuoto. Evita il ping-pong FLEEING↔SEEKING quando la minaccia
+## esce dalla DetectionArea per pochi frame.
+@export var flee_lock_duration_sec: float = 3.0
+var _flee_lock_until_ms: int = -1
+
+# ─── STUCK DETECTION ─────────────────────────────────────────────────────────
+## Se l'animale resta praticamente fermo per più di questo tempo mentre cerca
+## cibo/acqua/mate, abbandona il target corrente e cambia rotta.
+@export var stuck_timeout_sec: float    = 2.5
+## Velocità sotto la quale consideriamo "fermo" (m/s).
+@export var stuck_speed_threshold: float = 0.3
+## Durata di "blacklist" per un target abbandonato (sec).
+@export var blacklist_duration_sec: float = 15.0
+var _stuck_timer: float                 = 0.0
+## Mappa target → timestamp (ms) di scadenza blacklist.
+var _blacklisted: Dictionary            = {}
+
 # ─────────────────────────────────────────────────────────────────────────────
 func _ready() -> void:
 	body   = get_parent() as Node3D
 	health = max_health
 	_is_female = randf() > 0.5
+
+	if body == null:
+		push_error("[AnimalBase] body è NULL — get_parent() non restituisce Node3D!")
 
 	# Inizializza i 4 bisogni di base
 	needs["hunger"]       = Need.new("hunger",       100.0, hunger_drain)
@@ -142,6 +194,10 @@ func _ready() -> void:
 
 	# Registrazione nel gruppo per UI/proximity scanning (es. animal_tooltip.gd)
 	add_to_group("animal_behavior")
+	# Anche il body, per simmetria col conteggio popolazione dei cuccioli.
+	if body:
+		body.add_to_group("animal_behavior")
+		body.add_to_group(_species_group_name())
 
 	_connect_detection_area()
 	_on_ready()            # hook per le sottoclassi
@@ -158,9 +214,25 @@ func _process(delta: float) -> void:
 
 	_tick_needs(delta)
 	_check_critical_needs()
+	_apply_starvation_damage(delta)
+	# IMPORTANTE: _apply_starvation_damage può chiamare _die() che setta lo
+	# stato a DEAD. Senza questo re-check, il blocco fleeing sotto
+	# sovrascriverebbe DEAD con FLEEING e l'animale "resusciterebbe" in loop.
+	if current_state == State.DEAD:
+		return
+	_cleanup_blacklist()
 
-	# Priorità assoluta: fuga (viene dall'esterno, via segnale)
+	# Priorità assoluta: fuga. Una volta che entriamo in FLEEING il timer di
+	# lock impedisce di uscire (anche se la minaccia sparisce dalla detection
+	# area per qualche frame): così evitiamo il ping-pong FLEEING↔SEEKING.
+	var now_ms: int = Time.get_ticks_msec()
 	if not _flee_targets.is_empty():
+		_flee_lock_until_ms = now_ms + int(flee_lock_duration_sec * 1000.0)
+		_ensure_state(State.FLEEING)
+	elif now_ms < _flee_lock_until_ms:
+		# Ancora dentro il lock: continuiamo a fuggire usando l'ultimo wander
+		# come direzione (calcolato in _tick_fleeing che vede _flee_targets
+		# vuoto e fa countdown del _flee_timer normale).
 		_ensure_state(State.FLEEING)
 	else:
 		_choose_state()
@@ -180,6 +252,30 @@ func _check_critical_needs() -> void:
 	for key in needs:
 		if needs[key].is_critical(0.95):
 			need_critical.emit(key)
+
+## Quando fame/sete restano sopra `starvation_urgency_threshold`, l'animale
+## perde HP nel tempo. Se la vita arriva a 0, `take_damage()` chiama `_die()`.
+## La sete fa danno più velocemente della fame (vedi default).
+var _starvation_print_accum: float = 0.0
+func _apply_starvation_damage(delta: float) -> void:
+	if not is_alive(): return
+	var total_dmg := 0.0
+	if needs.has("hunger") and needs["hunger"].urgency() >= starvation_urgency_threshold:
+		total_dmg += hunger_damage_per_sec * delta
+	if needs.has("thirst") and needs["thirst"].urgency() >= starvation_urgency_threshold:
+		total_dmg += thirst_damage_per_sec * delta
+	if total_dmg > 0.0:
+		take_damage(total_dmg)
+		# Print HP ogni ~2 secondi mentre sta morendo di fame/sete, così
+		# vedi che il danno c'è davvero (debugging del flusso morte).
+		_starvation_print_accum += delta
+		if _starvation_print_accum >= 2.0:
+			_starvation_print_accum = 0.0
+			var who: String = body.name if body else name
+			print("[", who, "] STARVING — HP=", "%.1f" % health,
+				  "/", max_health,
+				  "  hunger=", "%.2f" % needs["hunger"].urgency(),
+				  "  thirst=", "%.2f" % needs["thirst"].urgency())
 
 # ─── SCELTA STATO (Utility AI) ───────────────────────────────────────────────
 ## Calcola le priorità e seleziona lo stato con urgenza più alta.
@@ -202,14 +298,36 @@ func _choose_state() -> void:
 
 	_ensure_state(best_state)
 
+## True se l'animale è attualmente DENTRO l'acqua (sotto il pelo). Si basa
+## sulla posizione globale e cerca un nodo nel gruppo "water_body" per leggere
+## il livello dell'acqua. Fallback: usa la quota del primo Marker3D nel
+## gruppo "water" (che è ~la quota della riva).
+func _is_above_water() -> bool:
+	if body == null: return false
+	# Heuristica: se ci sono marker d'acqua nel mondo, prendiamo la quota
+	# del più vicino come "pelo dell'acqua". Se siamo sotto (y < shore_y),
+	# siamo in acqua.
+	var closest_water: Node3D = null
+	var best_d2 := INF
+	for n in get_tree().get_nodes_in_group("water"):
+		if not (n is Node3D) or not n.is_inside_tree(): continue
+		var d2: float = body.global_position.distance_squared_to(n.global_position)
+		if d2 < best_d2:
+			best_d2 = d2
+			closest_water = n
+	if closest_water == null:
+		return true   # niente acqua trovata → trattalo come terraferma
+	# Se siamo più di 1m sotto la quota del marker, siamo nel lago
+	return body.global_position.y >= closest_water.global_position.y - 1.0
+
 ## Restituisce un dizionario { State → priorità 0..1 }.
 ## Override nelle sottoclassi per aggiungere/modificare priorità.
 func _compute_priorities() -> Dictionary:
 	var p := {}
 
-	# Sonno: urgente quando l'energia è bassa
+	# Sonno: urgente quando l'energia è bassa — MA non se siamo nel lago.
 	var energy_urgency = needs["energy"].urgency()
-	if energy_urgency > sleep_threshold:
+	if energy_urgency > sleep_threshold and _is_above_water():
 		p[State.SLEEPING] = energy_urgency
 
 	# Sete: seconda priorità biologica dopo il sonno
@@ -260,10 +378,17 @@ func _tick_current_state(delta: float) -> void:
 		State.GESTATING:
 			_tick_gestating(delta)
 
+	# Re-assert sul body lo stato "sta mangiando/bevendo" ogni frame: serve
+	# perché move.gd può ricevere transienti (un frame in aria, ecc.) che
+	# spengono l'animazione, e _ensure_state non rifa nulla se siamo già
+	# in EATING/DRINKING.
+	if body and body.has_method("ai_set_eating"):
+		var should_eat := current_state == State.EATING or current_state == State.DRINKING
+		body.ai_set_eating(should_eat)
+
 # ─── STATI: IMPLEMENTAZIONI BASE ─────────────────────────────────────────────
 
 func _tick_idle(delta: float) -> void:
-	print("idle")
 	_wander_timer -= delta
 	if _wander_timer <= 0.0:
 		_decide_next_wander()
@@ -277,18 +402,15 @@ func _tick_wander(delta: float) -> void:
 
 ## Override nelle sottoclassi: vai verso il cibo/preda rilevata
 func _tick_seek_food(_delta: float) -> void:
-	print("seeking food")
 	if not _focus_target or not is_instance_valid(_focus_target):
 		_ensure_state(State.WANDERING)
 
 ## Override nelle sottoclassi: logica di mangiare
 func _tick_eating(_delta: float) -> void:
-	print("eating")
 	pass
 
 ## Override nelle sottoclassi: vai verso l'acqua
 func _tick_seek_water(_delta: float) -> void:
-	print("seeking water")
 	if not _focus_target or not is_instance_valid(_focus_target):
 		_ensure_state(State.WANDERING)
 
@@ -303,7 +425,6 @@ func _tick_sleeping(delta: float) -> void:
 		_ensure_state(State.IDLE)
 
 func _tick_fleeing(delta: float) -> void:
-	print("fleeing")
 	_flee_targets = _flee_targets.filter(
 		func(t): return is_instance_valid(t) and t.is_inside_tree()
 	)
@@ -324,7 +445,6 @@ func _tick_seek_mate(_delta: float) -> void:
 		_ensure_state(State.WANDERING)
 
 func _tick_mating(delta: float) -> void:
-	print("mating")
 	# Durata fissa 2 secondi, poi passa a gestazione (femmine) o idle (maschi)
 	_sleep_timer -= delta   # riuso come timer generico
 	if _sleep_timer <= 0.0:
@@ -342,16 +462,77 @@ func _tick_gestating(delta: float) -> void:
 		_ensure_state(State.IDLE)
 
 # ─── RIPRODUZIONE ─────────────────────────────────────────────────────────────
+## Genera N cuccioli istanziando `offspring_scene` attorno alla madre.
+## Emette comunque il segnale `reproduced` per chi vuole ascoltarlo (UI,
+## EcosystemManager, statistiche…).
 func _give_birth() -> void:
-	var count = randi_range(offspring_count_min, offspring_count_max)
-	var data  = {
+	var count := randi_range(offspring_count_min, offspring_count_max)
+
+	# Verifica limite di popolazione (per specie, identificata via gruppo)
+	var species_group: String = _species_group_name()
+	if max_population > 0:
+		var alive_count := get_tree().get_nodes_in_group(species_group).size()
+		if alive_count >= max_population:
+			print("[", body.name, "] non partorisce: popolazione %s al limite (%d/%d)"
+				  % [species_group, alive_count, max_population])
+			reproduced.emit({"parent": self, "count": 0,
+							 "position": body.global_position,
+							 "species": species_group, "skipped": true})
+			return
+
+	# Spawn dei cuccioli
+	var spawned: Array[Node] = []
+	if offspring_scene == null:
+		push_warning("[%s] offspring_scene NON assegnato — nessun cucciolo spawnato. "
+					 % body.name + "Trascina la .tscn della specie nell'Inspector "
+					 + "del BehaviorController, gruppo 'Riproduzione'.")
+	else:
+		var spawn_parent := body.get_parent()  # stesso layer della madre nella scena
+		for i in count:
+			var baby = offspring_scene.instantiate()
+			spawn_parent.add_child(baby)
+			# Posiziona attorno alla madre con offset casuale
+			var angle = randf_range(0.0, TAU)
+			var r = randf_range(0.5, offspring_spawn_radius)
+			var offset = Vector3(cos(angle) * r, 0.0, sin(angle) * r)
+			if baby is Node3D:
+				baby.global_position = body.global_position + offset
+			# Marca per il conteggio popolazione
+			baby.add_to_group(species_group)
+			# Imposta la salute iniziale (chiamato dopo _ready del baby)
+			# Usiamo call_deferred così _ready del baby ha già creato il
+			# BehaviorController e i needs.
+			_apply_baby_init.call_deferred(baby)
+			spawned.append(baby)
+		print("[", body.name, "] ha partorito ", spawned.size(),
+			  " ", species_group, " (popolazione totale: ",
+			  get_tree().get_nodes_in_group(species_group).size(), ")")
+
+	# Emetti il segnale per eventuali listener esterni
+	reproduced.emit({
 		"parent": self,
-		"count":  count,
+		"count":  spawned.size(),
 		"position": body.global_position,
-		"species": get_script().resource_path,
-	}
-	reproduced.emit(data)
-	# L'EcosystemManager (listener del segnale) spawna effettivamente i figli
+		"species": species_group,
+	})
+
+## Setta HP iniziali del cucciolo. Chiamato deferred così il BehaviorController
+## del baby ha già finito il proprio _ready.
+func _apply_baby_init(baby: Node) -> void:
+	if not is_instance_valid(baby): return
+	var baby_ctrl := AnimalBase.find_animal_ctrl(baby)
+	if baby_ctrl:
+		baby_ctrl.health = baby_ctrl.max_health * offspring_starting_health_ratio
+
+## Nome del gruppo che identifica la specie. Usa il path dello script così
+## ogni sottoclasse ha automaticamente un gruppo proprio (Herbivore.gd → "herbivore_pop").
+func _species_group_name() -> String:
+	var script := get_script() as Script
+	if script == null: return "animal_pop"
+	var path := script.resource_path
+	# es. "res://scripts/Behaviors/herbivore.gd" → "herbivore_pop"
+	var base := path.get_file().get_basename()
+	return base + "_pop"
 
 ## Chiamato da fuori quando un mate accetta l'accoppiamento
 func accept_mating(partner: AnimalBase) -> void:
@@ -377,31 +558,89 @@ func take_damage(amount: float) -> void:
 	if not is_alive(): return
 	health = max(0.0, health - amount)
 	if health <= 0.0:
+		var who: String = body.name if body else name
+		print("[DEATH 2] take_damage → health ≤ 0 (", who, ") chiamo _die()")
 		_die()
 
 func heal(amount: float) -> void:
 	health = min(max_health, health + amount)
 
 func _die() -> void:
+	var who: String = body.name if body else name
+	print("[DEATH 3] _die() ENTRATO — ", who, "  HP=", health)
 	_ensure_state(State.DEAD)
 	died.emit(self)
+	print("[DEATH 5] _die() chiama _on_death() per ", who)
 	_on_death()
+	print("[DEATH 9] _die() COMPLETATO per ", who)
 
-## Hook per animazioni di morte, drop risorse, ecc.
+## Eseguito quando l'animale muore.
+##  1) Disabilita la fisica di collisione (così gli altri non sbattono contro
+##     il cadavere e i predatori possono raggiungerlo per mangiarlo).
+##  2) Smarca il body dai gruppi "live" (es. "animal_behavior") così non
+##     compare più nei tooltip/proximity scan dei vivi.
+##  3) Lo aggiunge al gruppo "carrion" — in futuro i carnivori potranno
+##     trattarlo come fonte di cibo (carcassa).
+##  4) Programma il queue_free dopo `corpse_duration_sec` secondi.
+## Le sottoclassi possono override per drop risorse extra, particelle, ecc.
 func _on_death() -> void:
-	pass
+	if body == null:
+		push_error("[DEATH 6 FAIL] _on_death: body è NULL")
+		return
+
+	# 1) ANIMAZIONE DI MORTE — chiamata esplicita.
+	if body.has_method("ai_set_dead"):
+		print("[DEATH 6] _on_death → chiamo body.ai_set_dead(true) su ", body.name,
+			  " (2a volta, idempotente)")
+		body.ai_set_dead(true)
+	else:
+		push_error("[DEATH 6 FAIL] body=", body.name, " NON ha ai_set_dead")
+
+	# 2) Disabilita la collisione (cerca CollisionShape3D figlio del body)
+	if disable_collision_on_death:
+		for child in body.get_children():
+			if child is CollisionShape3D:
+				(child as CollisionShape3D).disabled = true
+
+	# 3) NON rimuoviamo subito da "animal_behavior": altrimenti il tooltip
+	# (che usa quel gruppo per la proximity scan) smette di mostrare l'animale
+	# e l'utente non vede mai lo stato "Morto". Resta nel gruppo finché il
+	# body non viene queue_free'd dal timer del cadavere.
+	# (rimozione spostata in _on_corpse_expired, sotto)
+
+	# 4) Marca come carcassa per i carnivori
+	body.add_to_group("carrion")
+
+	# 5) Auto-cleanup dopo N secondi (se >0)
+	if corpse_duration_sec > 0.0:
+		var t := body.get_tree().create_timer(corpse_duration_sec)
+		t.timeout.connect(_on_corpse_expired)
+
+func _on_corpse_expired() -> void:
+	if body and is_instance_valid(body):
+		body.queue_free()
 
 # ─── MOVIMENTO ───────────────────────────────────────────────────────────────
-## Muove il body verso `dir`, ma prima lo ruota gradualmente in quella direzione.
-## L'animale si muove SEMPRE lungo il proprio forward attuale (-Z): se deve
-## cambiare direzione di molto, prima gira la "testa" e poi parte, invece di
-## scivolare all'indietro.
+## Muove il body verso `dir`.
+## - Se il body espone l'API `ai_set_move_dir` (move.gd), la usa: move.gd farà
+##   rotazione smooth, gravità, pendenze, animazioni e auto-jump.
+## - Altrimenti applica direttamente velocity + rotazione (fallback per body
+##   "semplici" senza move.gd).
 func _move_in_direction(dir: Vector3, speed: float, delta: float) -> void:
 	if not body or dir.length_squared() < 0.001: return
 
 	var flat := Vector3(dir.x, 0.0, dir.z)
 	if flat.length_squared() < 0.001: return
 	flat = flat.normalized()
+
+	# DELEGA A move.gd se disponibile
+	if body.has_method("ai_set_move_dir"):
+		# Sprint = chiamante sta usando una velocità "sopra" la cruise.
+		var sprint := speed >= move_speed * 1.2
+		body.ai_set_move_dir(flat, sprint)
+		return
+
+	# FALLBACK: gestione locale per body senza move.gd
 
 	# 1) Rotazione smooth verso la direzione desiderata (yaw attorno all'asse Y).
 	# I modelli di questo progetto hanno il "naso" orientato lungo +Z.
@@ -416,7 +655,6 @@ func _move_in_direction(dir: Vector3, speed: float, delta: float) -> void:
 	forward = forward.normalized()
 
 	# 3) Riduci la velocità finché non sei allineato al target.
-	# alignment va da 0 (direzione opposta) a 1 (perfettamente allineato).
 	var alignment := (forward.dot(flat) + 1.0) * 0.5
 	var move_factor :float= lerp(1.0, alignment * alignment, turn_brake)
 
@@ -486,6 +724,26 @@ func _ensure_state(new_state: State) -> void:
 	current_state = new_state
 	state_changed.emit(old, new_state)
 
+	# Log di transizione (utile per debugging future regressioni)
+	var who: String = body.name if body else name
+	print("[", who, "] ", State.keys()[old], " → ", State.keys()[new_state])
+
+	# Notifica il body (se ha API move.gd) di stati "non-movimento" e morte
+	if body:
+		if body.has_method("ai_stop") and new_state in [
+				State.IDLE, State.EATING, State.DRINKING,
+				State.SLEEPING, State.MATING, State.GESTATING, State.DEAD]:
+			body.ai_stop()
+		# Animazione "eating" condivisa per mangiare e bere (testa giù).
+		if body.has_method("ai_set_eating"):
+			body.ai_set_eating(new_state == State.EATING or new_state == State.DRINKING)
+		if new_state == State.DEAD:
+			if body.has_method("ai_set_dead"):
+				print("[DEATH 4] _ensure_state(DEAD) → chiamo body.ai_set_dead(true) su ", body.name)
+				body.ai_set_dead(true)
+			else:
+				push_error("[DEATH 4 FAIL] body=", body.name, " NON ha ai_set_dead — animazione morte impossibile")
+
 func _get_closest(list: Array[Node3D]) -> Node3D:
 	var closest: Node3D = null
 	var best := INF
@@ -540,6 +798,74 @@ static func find_animal_ctrl(b: Node) -> AnimalBase:
 		if child is AnimalBase:
 			return child as AnimalBase
 	return null
+
+## Ruota lentamente il body per guardare verso `world_pos` (solo asse Y).
+## Usato quando l'animale sta mangiando/bevendo: deve guardare il target,
+## non mantenere l'orientamento di approccio.
+func _face_target(world_pos: Vector3, delta: float) -> void:
+	if body == null: return
+	var to := world_pos - body.global_position
+	to.y = 0.0
+	if to.length_squared() < 0.01: return
+	to = to.normalized()
+	# I modelli del progetto hanno il forward su +Z → atan2(x, z)
+	var target_yaw := atan2(to.x, to.z)
+	var rot_t := 1.0 - exp(-turn_speed * delta)
+	body.rotation.y = lerp_angle(body.rotation.y, target_yaw, rot_t)
+
+## Stuck detection: chiamata dalle sottoclassi dentro _tick_seek_*.
+## Restituisce true se l'animale è bloccato (velocità ~0 da troppo tempo);
+## in tal caso la sottoclasse dovrebbe blacklistare il target e cambiare rotta.
+func is_stuck(delta: float) -> bool:
+	if body == null or not (body is CharacterBody3D):
+		return false
+	var cb := body as CharacterBody3D
+	var sp := Vector2(cb.velocity.x, cb.velocity.z).length()
+	if sp < stuck_speed_threshold:
+		_stuck_timer += delta
+	else:
+		_stuck_timer = 0.0
+	if _stuck_timer >= stuck_timeout_sec:
+		_stuck_timer = 0.0
+		return true
+	return false
+
+## Aggiunge un target alla blacklist (l'animale lo eviterà per un po').
+func blacklist_target(target: Node3D) -> void:
+	if target == null: return
+	var expire_ms := Time.get_ticks_msec() + int(blacklist_duration_sec * 1000.0)
+	_blacklisted[target] = expire_ms
+	var who: String = body.name if body else name
+	print("[", who, "] blacklisto target ", target.name, " per ", blacklist_duration_sec, "s")
+
+## True se `target` è attualmente blacklistato.
+func is_blacklisted(target: Node3D) -> bool:
+	if target == null or not _blacklisted.has(target):
+		return false
+	return Time.get_ticks_msec() < _blacklisted[target]
+
+## Rimuove dalla blacklist gli entries scaduti o invalidi.
+func _cleanup_blacklist() -> void:
+	var now := Time.get_ticks_msec()
+	var to_remove := []
+	for t in _blacklisted:
+		if not is_instance_valid(t) or now >= _blacklisted[t]:
+			to_remove.append(t)
+	for t in to_remove:
+		_blacklisted.erase(t)
+
+## Quando un animale si blocca cercando un target, gli diamo una direzione
+## di "scappa" opposta al target — così esce dalla zona impossibile.
+func wander_away_from(point: Vector3) -> void:
+	if body == null: return
+	var dir := body.global_position - point
+	dir.y = 0.0
+	if dir.length_squared() < 0.001:
+		var angle = randf_range(0.0, TAU)
+		_wander_dir = Vector3(cos(angle), 0.0, sin(angle))
+	else:
+		_wander_dir = dir.normalized()
+	_wander_timer = randf_range(wander_interval_min, wander_interval_max)
 
 ## Restituisce un'etichetta leggibile dello stato corrente (in italiano).
 func get_state_label() -> String:

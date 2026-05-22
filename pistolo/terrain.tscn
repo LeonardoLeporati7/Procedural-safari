@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://dshlcsur5qf7f"]
 
 [ext_resource type="Script" uid="uid://cwh3sqmrq2gya" path="res://mesh_instance_3d.gd" id="1_206su"]
+[ext_resource type="PackedScene" uid="uid://dlv4ysksfmj7n" path="res://scatter.tscn" id="2_0u6kl"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0e48y"]
 transparency = 3
@@ -21,3 +22,5 @@ material_override = SubResource("StandardMaterial3D_0e48y")
 script = ExtResource("1_206su")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=377846675]
+
+[node name="Scatter" parent="." unique_id=1702862541 instance=ExtResource("2_0u6kl")]

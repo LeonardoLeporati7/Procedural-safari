@@ -35,11 +35,21 @@ var _mates_near: Array[Node3D]     = []   # potenziali partner
 var _last_food_scan_ms: int  = -100000
 var _last_water_scan_ms: int = -100000
 
+# Throttle per i print di debug (ms)
+var _last_seek_print_ms: int = -100000
+
 # ─────────────────────────────────────────────────────────────────────────────
 func _on_ready() -> void:
 	# Override default: gli erbivori sono tendenzialmente più lenti e più sociali
 	move_speed   = 3.0
 	sprint_speed = 7.5
+	# Protezione: l'attack_range NON deve mai essere ≤ 0 (altrimenti il check
+	# `dist <= attack_range` non passa mai e l'animale non entra mai in
+	# EATING/DRINKING). Se l'Inspector ha un valore strano (es. -1.85),
+	# clampiamo a un minimo sano.
+	if attack_range <= 0.0:
+		push_warning("[%s] attack_range non valido (%.2f), clamp a 2.0" % [name, attack_range])
+		attack_range = 2.0
 
 # ─────────────────────────────────────────────────────────────────────────────
 ## Aggiunge la priorità HUNTING con una penalità per gli erbivori (non cacciano).
@@ -75,7 +85,10 @@ func _compute_priorities() -> Dictionary:
 
 # ─── TICK STATI ──────────────────────────────────────────────────────────────
 func _tick_seek_food(delta: float) -> void:
-	_food_sources = _food_sources.filter(func(f): return is_instance_valid(f) and f.is_inside_tree())
+	# Filtra invalidi e blacklistati (l'animale non riprova a target abbandonati)
+	_food_sources = _food_sources.filter(
+		func(f): return is_instance_valid(f) and f.is_inside_tree() and not is_blacklisted(f)
+	)
 	if _food_sources.is_empty():
 		_focus_target = null
 		_ensure_state(State.WANDERING)
@@ -83,25 +96,47 @@ func _tick_seek_food(delta: float) -> void:
 
 	_focus_target = _get_closest(_food_sources)
 	var dist = body.global_position.distance_to(_focus_target.global_position)
-	if dist <= attack_range:
+	var effective_range: float = max(attack_range, 2.0)
+
+	if dist <= effective_range:
 		_ensure_state(State.EATING)
-	else:
-		_move_toward(_focus_target.global_position, move_speed, delta)
+		return
+
+	# Stuck detection: se non avanziamo da troppo tempo, blacklistiamo il
+	# target (terreno impossibile?) e camminiamo via.
+	if is_stuck(delta):
+		print("[", body.name, "] STUCK su food, blacklist ", _focus_target.name)
+		blacklist_target(_focus_target)
+		var stuck_at: Vector3 = _focus_target.global_position
+		_food_sources.erase(_focus_target)
+		_focus_target = null
+		wander_away_from(stuck_at)
+		_ensure_state(State.WANDERING)
+		return
+
+	_move_toward(_focus_target.global_position, move_speed, delta)
 
 func _tick_eating(delta: float) -> void:
 	if not _focus_target or not is_instance_valid(_focus_target):
 		_ensure_state(State.IDLE)
 		return
+	# Ruota il muso verso il target così l'animazione di pasto guarda la pianta
+	_face_target(_focus_target.global_position, delta)
 	# Stai mangiando: soddisfa fame e cura
 	needs["hunger"].satisfy(eat_rate * delta)
 	heal(eat_heal_rate * delta)
-	# Finito di mangiare?
+	# Finito di mangiare? Consuma l'albero/pianta e torna ad IDLE.
 	if not needs["hunger"].is_critical(seek_food_threshold * 0.3):
+		if is_instance_valid(_focus_target):
+			_food_sources.erase(_focus_target)
+			_focus_target.queue_free()
 		_focus_target = null
 		_ensure_state(State.IDLE)
 
 func _tick_seek_water(delta: float) -> void:
-	_water_sources = _water_sources.filter(func(f): return is_instance_valid(f) and f.is_inside_tree())
+	_water_sources = _water_sources.filter(
+		func(f): return is_instance_valid(f) and f.is_inside_tree() and not is_blacklisted(f)
+	)
 	if _water_sources.is_empty():
 		_focus_target = null
 		_ensure_state(State.WANDERING)
@@ -109,12 +144,31 @@ func _tick_seek_water(delta: float) -> void:
 
 	_focus_target = _get_closest(_water_sources)
 	var dist = body.global_position.distance_to(_focus_target.global_position)
-	if dist <= attack_range:
+	# L'acqua ha un range più stretto perché il marker è già esattamente sulla
+	# riva (vedi acqua_2.gd marker_shore_offset). Vogliamo che l'animale ci
+	# arrivi davvero sopra prima di iniziare a bere.
+	var effective_range: float = clamp(attack_range, 1.2, 1.8)
+
+	if dist <= effective_range:
 		_ensure_state(State.DRINKING)
-	else:
-		_move_toward(_focus_target.global_position, move_speed, delta)
+		return
+
+	if is_stuck(delta):
+		print("[", body.name, "] STUCK su water, blacklist ", _focus_target.name)
+		blacklist_target(_focus_target)
+		var stuck_at: Vector3 = _focus_target.global_position
+		_water_sources.erase(_focus_target)
+		_focus_target = null
+		wander_away_from(stuck_at)
+		_ensure_state(State.WANDERING)
+		return
+
+	_move_toward(_focus_target.global_position, move_speed, delta)
 
 func _tick_drinking(delta: float) -> void:
+	# Ruota il muso verso l'acqua così l'animazione di bere è diretta dal verso giusto
+	if _focus_target and is_instance_valid(_focus_target):
+		_face_target(_focus_target.global_position, delta)
 	needs["thirst"].satisfy(drink_rate * delta)
 	if not needs["thirst"].is_critical(0.1):
 		_ensure_state(State.IDLE)
@@ -159,7 +213,6 @@ func _on_body_detected(other: Node3D) -> void:
 		print(ctrl.get_class())
 	if ctrl is Herbivore and ctrl._is_female != _is_female:
 		_mates_near.append(other)
-		print("mate")
 
 func _on_body_lost(other: Node3D) -> void:
 	super._on_body_lost(other)

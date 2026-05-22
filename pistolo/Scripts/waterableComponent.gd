@@ -16,13 +16,13 @@ func _ready():
 
 func inWater(fluid):
 	current_fluid=fluid
-	#print(padre.name, "è in acqua")
+	print(padre.name, "è in acqua")
 	is_submerged = true
 
 
 func outWater():
 	is_submerged=false
-	#print(padre.name, " è fuori dall'acqua")
+	print(padre.name, " è fuori dall'acqua")
 
 
 func _physics_process(delta: float) -> void:

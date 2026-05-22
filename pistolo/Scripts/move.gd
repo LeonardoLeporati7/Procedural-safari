@@ -1,3 +1,15 @@
+## move.gd
+## Controllore "fisico" dell'animale: gestisce velocity, pendenze, gravità,
+## stamina, animazioni e salto automatico.
+## NON legge più input da tastiera — la AI (animal_base.gd) lo pilota chiamando
+## i metodi `ai_*` qui sotto.
+##
+## API per la AI:
+##   ai_set_move_dir(dir, sprint) → dice "muoviti in direzione mondo `dir`,
+##                                  sprint=true per galoppare". Vector3.ZERO ferma.
+##   ai_stop()                    → ferma il movimento.
+##   ai_request_attack()          → triggera un attacco.
+##   ai_set_eating(on)            → attiva/disattiva l'animazione di pasto.
 extends CharacterBody3D
 
 # ─── MOVIMENTO ───────────────────────────────────────────────────────────────
@@ -10,7 +22,8 @@ extends CharacterBody3D
 
 # ─── ROTAZIONE ───────────────────────────────────────────────────────────────
 @export_group("Rotazione")
-@export var ROTATION_SPEED: float = 2.0
+## Velocità di rotazione automatica verso la direzione di movimento (rad/sec).
+@export var TURN_SPEED: float    = 6.0
 @export var visual_model: Node3D  # assegna "Fox" dall'Inspector
 
 # ─── SALUTE ──────────────────────────────────────────────────────────────────
@@ -53,6 +66,11 @@ var _smooth_normal: Vector3      = Vector3.UP
 var _coyote_timer: float         = 0.0      # grazia prima di considerarsi "in aria"
 var _auto_jump_cooldown: float   = 0.0      # cooldown per il salto automatico
 
+# ─── COMANDI DA AI ───────────────────────────────────────────────────────────
+var _ai_move_dir: Vector3        = Vector3.ZERO
+var _ai_sprint: bool             = false
+var _ai_attack_requested: bool   = false
+
 @export_group("Salto")
 @export var COYOTE_TIME: float = 0.15       # secondi di tolleranza sui dislivelli
 
@@ -72,6 +90,9 @@ var _auto_jump_cooldown: float   = 0.0      # cooldown per il salto automatico
 
 @onready var anim_tree: AnimationTree = $AnimationTree
 
+# Cache: alcune scene NON hanno la condition "die" nell'AnimationTree.
+var _has_die_condition: bool = false
+
 # ─────────────────────────────────────────────────────────────────────────────
 func _ready() -> void:
 	anim_tree.active = true
@@ -82,6 +103,17 @@ func _ready() -> void:
 	# Allinea il rilevamento piano al MAX_SLOPE_ANGLE configurato
 	floor_max_angle   = deg_to_rad(MAX_SLOPE_ANGLE)
 
+	_has_die_condition = _anim_has_param("parameters/conditions/die")
+	print("[DEATH 0 SCRIPTS] ", name, " _ready  _has_die_condition=",
+		  _has_die_condition, "  anim_tree=", anim_tree)
+
+func _anim_has_param(path: String) -> bool:
+	if anim_tree == null: return false
+	for prop in anim_tree.get_property_list():
+		if prop.name == path:
+			return true
+	return false
+
 # ─────────────────────────────────────────────────────────────────────────────
 func _physics_process(delta: float) -> void:
 	if is_dead:
@@ -91,7 +123,8 @@ func _physics_process(delta: float) -> void:
 	# 1. GRAVITÀ
 	if not is_on_floor():
 		velocity += get_gravity() * delta
-		is_eating = false
+		# NB: non azzerare is_eating qui — basta un frame "in aria" per
+		# spegnere l'animazione di pasto. Lo stato lo controlla la AI.
 
 	# 2. RILEVAMENTO PENDENZA
 	_check_slope()
@@ -99,36 +132,36 @@ func _physics_process(delta: float) -> void:
 	# 3. TIMERS
 	attack_cooldown_timer = max(0.0, attack_cooldown_timer - delta)
 
-	# 4. ATTACCO
-	if Input.is_action_just_pressed("attack") and attack_cooldown_timer <= 0.0:
+	# 4. ATTACCO (richiesto dalla AI)
+	if _ai_attack_requested and attack_cooldown_timer <= 0.0:
 		is_attacking = true
 		is_eating    = false
 		attack_cooldown_timer = ATTACK_COOLDOWN
 		get_tree().create_timer(0.5).timeout.connect(func(): is_attacking = false)
+	_ai_attack_requested = false
 
-	# 5. MANGIARE
-	if Input.is_action_just_pressed("eat") and is_on_floor():
-		is_eating = not is_eating
+	# 5. MANGIARE: gestito da ai_set_eating()
 
-	# 6. INPUT MOVIMENTO
-	var input_dir = Input.get_vector("ui_left", "ui_right", "ui_down", "ui_up")
-	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	# 6. DIREZIONE DI MOVIMENTO (dalla AI, in spazio MONDO)
+	var direction := Vector3(_ai_move_dir.x, 0.0, _ai_move_dir.z)
+	if direction.length() > 0.001:
+		direction = direction.normalized()
+	else:
+		direction = Vector3.ZERO
 
-	# 7. ROTAZIONE
-	if not is_eating:
-		var turn_input = Input.get_axis("turn_right", "turn_left")
-		if turn_input:
-			rotate_y(turn_input * ROTATION_SPEED * delta)
+	# 7. ROTAZIONE AUTOMATICA verso la direzione richiesta
+	if direction.length() > 0.001 and not is_eating and not is_attacking:
+		var target_yaw := atan2(direction.x, direction.z)
+		var rot_t := 1.0 - exp(-TURN_SPEED * delta)
+		rotation.y = lerp_angle(rotation.y, target_yaw, rot_t)
 
 	# 8. INTERRUZIONI LOGICHE
-	if input_dir.length() > 0 and is_eating:
-		is_eating = false
 	if is_attacking or is_eating:
 		direction = Vector3.ZERO
 
-	# 9. SPRINT con isteresi (evita flickering walk/gallop a stamina 0)
+	# 9. SPRINT con isteresi
 	var is_sprinting = (
-		Input.is_action_pressed("sprint")
+		_ai_sprint
 		and is_on_floor()
 		and direction.length() > 0.001
 		and stamina > 0.0
@@ -150,9 +183,10 @@ func _physics_process(delta: float) -> void:
 			_sprint_locked = false
 
 	# 11. PROIEZIONE DIREZIONE SULLA PENDENZA
-	#     Usa Vector3.slide() per proiettare sul piano della pendenza in modo robusto.
-	#     Funziona correttamente in qualsiasi direzione di movimento (salita, discesa, traverso).
-	if direction.length() > 0.001 and is_on_floor() and current_slope_angle > 2.0:
+	if direction.length() > 0.001 \
+			and is_on_floor() \
+			and current_slope_angle > 2.0 \
+			and slope_normal.is_normalized():
 		var projected = direction.slide(slope_normal)
 		if projected.length() > 0.001:
 			direction = projected.normalized()
@@ -248,7 +282,12 @@ func _check_slope() -> void:
 		current_slope_angle = 0.0
 		slope_normal        = Vector3.UP
 		return
-	slope_normal        = get_floor_normal()
+	var n: Vector3 = get_floor_normal()
+	if n.length_squared() < 0.0001:
+		slope_normal        = Vector3.UP
+		current_slope_angle = 0.0
+		return
+	slope_normal        = n.normalized()
 	current_slope_angle = rad_to_deg(acos(clamp(slope_normal.dot(Vector3.UP), -1.0, 1.0)))
 
 
@@ -264,13 +303,16 @@ func _update_anim_conditions(is_moving: bool, is_sprinting: bool, is_jumping: bo
 	anim_tree[p + "attack"]      = false
 
 	if is_dead:
+		if _has_die_condition:
+			anim_tree[p + "die"] = true
 		return
+	if _has_die_condition:
+		anim_tree[p + "die"] = false
 
 	if is_attacking:
 		anim_tree[p + "attack"] = true
 		return
 
-	# Usa is_jumping — si attiva solo col tasto, mai sui dislivelli
 	if is_jumping:
 		if is_sprinting:
 			anim_tree[p + "gallop_jump"] = true
@@ -289,6 +331,83 @@ func _update_anim_conditions(is_moving: bool, is_sprinting: bool, is_jumping: bo
 			anim_tree[p + "walk"] = true
 	else:
 		anim_tree[p + "idle"] = true
+
+
+# ─── API PUBBLICA PER LA AI ──────────────────────────────────────────────────
+func ai_set_move_dir(world_dir: Vector3, sprint: bool = false) -> void:
+	_ai_move_dir = Vector3(world_dir.x, 0.0, world_dir.z)
+	_ai_sprint   = sprint
+
+func ai_stop() -> void:
+	_ai_move_dir = Vector3.ZERO
+	_ai_sprint   = false
+
+func ai_request_attack() -> void:
+	_ai_attack_requested = true
+
+func ai_set_eating(on: bool) -> void:
+	is_eating = on
+	if on:
+		ai_stop()
+	_apply_anim_eating(on)
+
+func ai_set_dead(on: bool) -> void:
+	# Etichetta "SCRIPTS" così sai se il body sta usando QUESTO file
+	print("[DEATH 7 SCRIPTS] ai_set_dead(", on, ") su body=", name,
+		  "  is_dead_prev=", is_dead,
+		  "  _has_die_condition=", _has_die_condition)
+	is_dead = on
+	if anim_tree and _has_die_condition:
+		anim_tree["parameters/conditions/die"] = on
+		if on:
+			var sm: AnimationNodeStateMachinePlayback = anim_tree.get("parameters/playback")
+			if sm:
+				print("[DEATH 7c SCRIPTS] SM current=", sm.get_current_node())
+	elif on:
+		push_error("[DEATH 7 FAIL SCRIPTS] _has_die_condition=", _has_die_condition,
+				   " — la scena NON ha 'die'.")
+	if on:
+		ai_stop()
+		if anim_tree:
+			var p := "parameters/conditions/"
+			anim_tree[p + "idle"]        = false
+			anim_tree[p + "walk"]        = false
+			anim_tree[p + "gallop"]      = false
+			anim_tree[p + "gallop_jump"] = false
+			anim_tree[p + "eating"]      = false
+			anim_tree[p + "jump"]        = false
+			anim_tree[p + "attack"]      = false
+
+
+# ─── HELPER ANIMAZIONI ───────────────────────────────────────────────────────
+func _apply_anim_eating(on: bool) -> void:
+	if anim_tree == null: return
+	var p := "parameters/conditions/"
+	if on:
+		anim_tree[p + "idle"]        = false
+		anim_tree[p + "walk"]        = false
+		anim_tree[p + "gallop"]      = false
+		anim_tree[p + "gallop_jump"] = false
+		anim_tree[p + "jump"]        = false
+		anim_tree[p + "attack"]      = false
+		anim_tree[p + "eating"]      = true
+		var sm: AnimationNodeStateMachinePlayback = anim_tree.get("parameters/playback")
+		if sm: sm.travel("Eating")
+	else:
+		anim_tree[p + "eating"] = false
+
+func _clear_all_anim_conditions() -> void:
+	if anim_tree == null: return
+	var p := "parameters/conditions/"
+	anim_tree[p + "idle"]        = false
+	anim_tree[p + "walk"]        = false
+	anim_tree[p + "gallop"]      = false
+	anim_tree[p + "gallop_jump"] = false
+	anim_tree[p + "eating"]      = false
+	anim_tree[p + "jump"]        = false
+	anim_tree[p + "attack"]      = false
+	if _has_die_condition:
+		anim_tree[p + "die"]     = false
 
 
 # ─── AUTO-JUMP: RILEVAMENTO OSTACOLO ─────────────────────────────────────────

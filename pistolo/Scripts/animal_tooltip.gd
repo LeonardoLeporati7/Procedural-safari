@@ -74,9 +74,9 @@ func _process(delta: float) -> void:
 		var b: Node = ctrl.get_parent()
 		if not (b is Node3D):
 			continue
-		# Salta gli animali morti
-		if ctrl.has_method("is_alive") and not ctrl.is_alive():
-			continue
+		# NB: mostriamo ANCHE gli animali morti (stato "Morto" visibile nel
+		# tooltip finché il cadavere non viene rimosso dalla scena tramite
+		# il timer di corpse_duration_sec in animal_base.gd).
 		var d: float = (b.global_position - p_pos).length()
 		if d < best_d:
 			best_d = d
