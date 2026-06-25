@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://dlv4ysksfmj7n"]
+
+[ext_resource type="Script" uid="uid://cmt7fcympfqlb" path="res://Scripts/scatter.gd" id="1_pbtgg"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_22yxv"]
+height = 1.0161133
+radius = 0.05078125
+
+[node name="Scatter" type="Node3D" unique_id=1702862541]
+script = ExtResource("1_pbtgg")
+
+[node name="tree2" type="StaticBody3D" parent="." unique_id=620293817]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="tree2" unique_id=1193429305]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0022789687, 0.50807023, 0.023759976)
+shape = SubResource("CylinderShape3D_22yxv")

@@ -1,13 +1,13 @@
 extends Camera3D
 
-var velocity = 0.2
+var velocity = 0.6
 var sensitivity= 0.2
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	
 	
-
+var sprint = 0
 func _input(event):
 	if event is InputEventMouseMotion && Input.mouse_mode==2:
 		# 1. Ruota il corpo a destra e sinistra (Asse Y)
@@ -31,7 +31,9 @@ func _process(delta: float) -> void:
 		# Se l'utente clicca nella finestra, cattura il mouse
 		if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-			
+	
+
+
 	
 	if Input.is_action_pressed("ui_up"):
 		rotation_degrees+= Vector3(5, 0, 0)
@@ -44,17 +46,32 @@ func _process(delta: float) -> void:
 		rotation_degrees+= Vector3(0, -5, 0)
 		
 	var direction = Vector3.ZERO
+	
 	if Input.is_action_pressed("w"):
-		direction -= transform.basis.z 
-		print(position)
+		direction -= transform.basis.z
 	if Input.is_action_pressed("s"):
-		direction += transform.basis.z 
+		direction += transform.basis.z
 	if Input.is_action_pressed("a"):
 		direction -= transform.basis.x
 	if Input.is_action_pressed("d"):
 		direction += transform.basis.x
+		
+	direction.y=0
+	
 	if Input.is_action_pressed("ui_accept"):
-		direction += transform.basis.y
-
+		direction.y += 1 * velocity
+	if Input.is_action_pressed("shi"):
+		direction.y -= 1 * velocity
+	
+	if Input.is_action_just_pressed("ui_focus_next"):
+		print(position)
+		
 	if(direction):
-		position+=direction.normalized() * velocity
+		
+		
+		if Input.is_action_pressed("ctrl"):
+			sprint = (velocity/100 * 100)
+		else:
+			sprint = 0
+			
+		position += direction.normalized() * (velocity + sprint)

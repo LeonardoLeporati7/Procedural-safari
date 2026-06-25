@@ -1,0 +1,26 @@
+[gd_scene format=3 uid="uid://dshlcsur5qf7f"]
+
+[ext_resource type="Script" uid="uid://cwh3sqmrq2gya" path="res://mesh_instance_3d.gd" id="1_206su"]
+[ext_resource type="PackedScene" uid="uid://dlv4ysksfmj7n" path="res://scatter.tscn" id="2_0u6kl"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0e48y"]
+transparency = 3
+alpha_hash_scale = 1.0
+alpha_antialiasing_mode = 2
+alpha_antialiasing_edge = 0.65
+depth_draw_mode = 1
+shading_mode = 2
+diffuse_mode = 3
+vertex_color_use_as_albedo = true
+roughness = 0.75
+roughness_texture_channel = 1
+
+[node name="StaticBody3D" type="StaticBody3D" unique_id=93586366]
+
+[node name="Terrain" type="MeshInstance3D" parent="." unique_id=154844551]
+material_override = SubResource("StandardMaterial3D_0e48y")
+script = ExtResource("1_206su")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=377846675]
+
+[node name="Scatter" parent="." unique_id=1702862541 instance=ExtResource("2_0u6kl")]
