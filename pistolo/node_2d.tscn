@@ -22,14 +22,13 @@ uniform float sun_angle_max = 0.877;
 uniform float inv_sun_curve : hint_range(1, 100) = 22.78;
 uniform float exposure : hint_range(0, 128) = 1.0;
 
-uniform sampler2D sky_cover : filter_linear, source_color, hint_default_black;
-uniform vec4 sky_cover_modulate : source_color = vec4(1.0, 1.0, 1.0, 1.0);
 uniform sampler2D cloud_texture;
 uniform sampler2D cloud_texture2;
 uniform vec2 cloud_direction;
 uniform vec2 cloud_direction2;
 uniform vec2 cloud_scale;
 uniform float cloud_distance;
+uniform vec3 cloud_color : source_color = vec3(1.0);
 
 
 void sky() {
@@ -88,9 +87,11 @@ void sky() {
 	vec2 sky_uv = EYEDIR.xz / EYEDIR.y;
 	
 	vec3 clouds = texture(cloud_texture, (sky_uv*cloud_scale) + (TIME*cloud_direction*0.001)).rgb - texture(cloud_texture2, (sky_uv * cloud_scale) + (TIME * cloud_direction2 * 0.001)).rgb;
-	clouds = clamp(clouds, 0, 1);
-	clouds = clouds - smoothstep(0.0, EYEDIR.y, cloud_distance);
-	sky += clouds;
+	clouds = clamp(clouds, 0.0, 1.0);
+	// La dissolvenza verso l'orizzonte va sottratta con un max(), altrimenti clouds
+	// diventa negativo dove non ci sono nuvole e scurisce il cielo ad anello.
+	clouds = max(clouds - smoothstep(0.0, EYEDIR.y, cloud_distance), 0.0);
+	sky = mix(sky, cloud_color, clouds);
 	COLOR = mix(ground, sky, step(0.0, EYEDIR.y)) * exposure;
 }
 "
@@ -104,6 +105,8 @@ noise = SubResource("FastNoiseLite_q6r6c")
 seamless = true
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_d21ai"]
+seed = 1337
+frequency = 0.015
 
 [sub_resource type="NoiseTexture2D" id="NoiseTexture2D_rj586"]
 width = 1024
@@ -122,13 +125,13 @@ shader_parameter/inv_ground_curve = 30.000000670552268
 shader_parameter/sun_angle_max = 0.9862568
 shader_parameter/inv_sun_curve = 0.7026491
 shader_parameter/exposure = 1.0
-shader_parameter/sky_cover_modulate = Color(1, 1, 1, 1)
 shader_parameter/cloud_texture = SubResource("NoiseTexture2D_kdubu")
 shader_parameter/cloud_texture2 = SubResource("NoiseTexture2D_rj586")
-shader_parameter/cloud_direction = Vector2(0, 0)
-shader_parameter/cloud_direction2 = Vector2(0, 0)
-shader_parameter/cloud_scale = Vector2(0, 0)
-shader_parameter/cloud_distance = 0.0
+shader_parameter/cloud_direction = Vector2(8, 2)
+shader_parameter/cloud_direction2 = Vector2(5, -3)
+shader_parameter/cloud_scale = Vector2(0.15, 0.15)
+shader_parameter/cloud_distance = 0.2
+shader_parameter/cloud_color = Color(1, 1, 1, 1)
 
 [sub_resource type="Sky" id="Sky_epypp"]
 sky_material = SubResource("ShaderMaterial_4d7sh")
