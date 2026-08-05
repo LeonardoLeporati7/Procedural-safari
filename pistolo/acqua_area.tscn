@@ -47,7 +47,7 @@ subdivide_depth = 256
 script = ExtResource("1_8ycdw")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1520270868]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15031433, -16.778286, -2.0106506)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15031433, -17.861984, -2.0106506)
 shape = SubResource("BoxShape3D_q6r6c")
 
 [node name="acqua2" type="MeshInstance3D" parent="." unique_id=383328961]
